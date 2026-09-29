@@ -172,24 +172,24 @@ export default {
           <div className="space-y-3 border-t border-[#27272a] pt-5">
             <div className="flex items-center justify-between">
               <span className="text-xs uppercase tracking-wider text-[#a1a1aa]">
-                Cloudflare Deployment Config (wrangler.toml)
+                Cloudflare Pages Deployment
               </span>
               <span className="text-[11px] font-mono text-emerald-400 bg-emerald-950/70 border border-emerald-800/60 px-2 py-0.5 rounded">
-                Static Assets Ready
+                Pages Ready
               </span>
             </div>
             <div className="bg-[#09090b] border border-[#27272a] p-3 text-xs space-y-2 text-[#a1a1aa]">
               <p>
-                Both <code className="text-white font-mono">npx wrangler deploy</code> (Workers with Static Assets) and <code className="text-white font-mono">npx wrangler pages deploy dist</code> are fully configured with SPA routing support.
+                Deployed on Cloudflare Pages using Vite. SPA routing is managed via <code className="text-white font-mono">public/_redirects</code>.
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 font-mono text-[11px]">
                 <div className="bg-[#121215] p-2 border border-[#272730] rounded">
-                  <span className="text-[#71717a] block text-[10px]">Cloudflare Worker / Assets:</span>
-                  <span className="text-amber-300">npx wrangler deploy</span>
+                  <span className="text-[#71717a] block text-[10px]">Build command:</span>
+                  <span className="text-amber-300">npm run build</span>
                 </div>
                 <div className="bg-[#121215] p-2 border border-[#272730] rounded">
-                  <span className="text-[#71717a] block text-[10px]">Cloudflare Pages:</span>
-                  <span className="text-emerald-300">npx wrangler pages deploy dist</span>
+                  <span className="text-[#71717a] block text-[10px]">Build output directory:</span>
+                  <span className="text-emerald-300">dist</span>
                 </div>
               </div>
             </div>
