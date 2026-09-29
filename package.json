@@ -8,6 +8,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
+    "deploy": "wrangler deploy",
+    "deploy:pages": "wrangler pages deploy dist",
     "lint": "tsc --noEmit"
   },
   "dependencies": {
