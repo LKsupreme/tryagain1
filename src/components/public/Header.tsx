@@ -91,8 +91,16 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, onNavigate, content
           </a>
         </nav>
 
-        {/* Action: LET'S CREATE → */}
-        <div className="flex items-center gap-4">
+        {/* Action: LET'S CREATE → & CMS */}
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => onNavigate('/admin')}
+            className="flex items-center gap-1.5 border border-[#ded7cc] bg-white px-2.5 py-1 text-[11px] font-medium tracking-[0.14em] uppercase text-[#524d45] hover:text-[#18181b] hover:bg-[#faf8f5] rounded transition-colors shadow-sm"
+            title="Studio CMS – Edit copy, upload media & manage projects"
+          >
+            <span>CMS</span>
+          </button>
+
           <a
             href="#contact"
             onClick={(e) => handleNavClick('#contact', e)}
@@ -151,6 +159,17 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, onNavigate, content
             >
               Contact
             </a>
+            <div className="pt-2 border-t border-[#ded7cc]">
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  onNavigate('/admin');
+                }}
+                className="w-full bg-[#18181b] text-white py-2 text-xs font-semibold uppercase tracking-wider rounded"
+              >
+                Studio CMS Admin
+              </button>
+            </div>
           </div>
         </div>
       )}

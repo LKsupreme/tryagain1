@@ -59,33 +59,33 @@ export default {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 sm:p-6 backdrop-blur-md overflow-y-auto">
-      <div className="relative w-full max-w-3xl max-h-[90vh] flex flex-col border border-[#27272a] bg-[#0c0c0e] rounded-sm shadow-2xl my-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 sm:p-6 backdrop-blur-sm overflow-y-auto">
+      <div className="relative w-full max-w-3xl max-h-[90vh] flex flex-col border border-[#ded7cc] bg-white rounded-lg shadow-2xl my-auto text-[#18181b]">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-[#27272a] px-6 py-4 bg-[#121215]">
+        <div className="flex items-center justify-between border-b border-[#ded7cc] px-6 py-4 bg-[#faf8f5]">
           <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded-full bg-[#f38020]/20 flex items-center justify-center text-[#f38020]">
+            <div className="h-8 w-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-700">
               <Cloud className="h-4 w-4" />
             </div>
             <div>
-              <h3 className="font-editorial text-lg text-white">
+              <h3 className="font-editorial text-lg text-[#18181b]">
                 Cloudflare R2 & Video Storage Architecture
               </h3>
-              <p className="text-xs text-[#a1a1aa]">
+              <p className="text-xs text-[#787268]">
                 Modular high-performance media pipeline configuration
               </p>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 text-[#a1a1aa] hover:text-white" aria-label="Close">
+          <button onClick={onClose} className="p-2 text-[#787268] hover:text-[#18181b] rounded transition-colors" aria-label="Close">
             <X className="h-5 w-5" />
           </button>
         </div>
 
         {/* Content */}
-        <form onSubmit={handleSave} className="flex-1 overflow-y-auto p-6 space-y-6">
-          <div className="bg-[#121216] border border-[#27272a] p-4 text-xs text-[#d4d4d8] leading-relaxed space-y-2">
-            <div className="flex items-center gap-2 text-white font-medium">
-              <ShieldCheck className="h-4 w-4 text-[#10b981]" />
+        <form onSubmit={handleSave} className="flex-1 overflow-y-auto p-6 space-y-6 bg-white">
+          <div className="bg-[#faf8f5] border border-[#ded7cc] p-4 text-xs text-[#524d45] leading-relaxed space-y-2 rounded-lg">
+            <div className="flex items-center gap-2 text-[#18181b] font-medium">
+              <ShieldCheck className="h-4 w-4 text-emerald-600" />
               <span>Zero-Egress Fees & Lightning-Fast Edge Delivery</span>
             </div>
             <p>
@@ -99,14 +99,14 @@ export default {
                 type="checkbox"
                 checked={config.enabled}
                 onChange={(e) => setConfig({ ...config, enabled: e.target.checked })}
-                className="h-4 w-4 accent-[#f38020]"
+                className="h-4 w-4 accent-amber-600"
               />
               <div>
-                <span className="text-sm font-medium text-white block">
+                <span className="text-sm font-semibold text-[#18181b] block">
                   Enable Cloudflare R2 CDN Resolution
                 </span>
-                <span className="text-[11px] text-[#71717a]">
-                  When active, image paths prefixed with <code className="text-white">r2://</code> resolve through your custom CDN URL
+                <span className="text-[11px] text-[#787268]">
+                  When active, image paths prefixed with <code className="text-[#18181b] font-semibold">r2://</code> resolve through your custom CDN URL
                 </span>
               </div>
             </label>
@@ -114,7 +114,7 @@ export default {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="text-xs uppercase tracking-wider text-[#a1a1aa] block">
+              <label className="text-xs uppercase tracking-wider text-[#524d45] font-semibold block">
                 Cloudflare Account ID
               </label>
               <input
@@ -122,12 +122,12 @@ export default {
                 value={config.accountId}
                 onChange={(e) => setConfig({ ...config, accountId: e.target.value })}
                 placeholder="e.g. 78f192b678c1..."
-                className="w-full bg-[#18181b] border border-[#27272a] px-3.5 py-2 text-xs text-white focus:outline-none focus:border-white font-mono"
+                className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3.5 py-2 text-xs text-[#18181b] focus:outline-none focus:border-[#18181b] font-mono rounded"
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs uppercase tracking-wider text-[#a1a1aa] block">
+              <label className="text-xs uppercase tracking-wider text-[#524d45] font-semibold block">
                 R2 Bucket Name
               </label>
               <input
@@ -135,14 +135,14 @@ export default {
                 value={config.bucketName}
                 onChange={(e) => setConfig({ ...config, bucketName: e.target.value })}
                 placeholder="elle-kay-portfolio-assets"
-                className="w-full bg-[#18181b] border border-[#27272a] px-3.5 py-2 text-xs text-white focus:outline-none focus:border-white font-mono"
+                className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3.5 py-2 text-xs text-[#18181b] focus:outline-none focus:border-[#18181b] font-mono rounded"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="text-xs uppercase tracking-wider text-[#a1a1aa] block">
+              <label className="text-xs uppercase tracking-wider text-[#524d45] font-semibold block">
                 Public Custom Domain / CDN URL
               </label>
               <input
@@ -150,12 +150,12 @@ export default {
                 value={config.publicCdnUrl}
                 onChange={(e) => setConfig({ ...config, publicCdnUrl: e.target.value })}
                 placeholder="https://cdn.ellekay-studio.com"
-                className="w-full bg-[#18181b] border border-[#27272a] px-3.5 py-2 text-xs text-white focus:outline-none focus:border-white font-mono"
+                className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3.5 py-2 text-xs text-[#18181b] focus:outline-none focus:border-[#18181b] font-mono rounded"
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs uppercase tracking-wider text-[#a1a1aa] block">
+              <label className="text-xs uppercase tracking-wider text-[#524d45] font-semibold block">
                 Cloudflare Stream Gateway URL
               </label>
               <input
@@ -163,73 +163,73 @@ export default {
                 value={config.streamUrl || ''}
                 onChange={(e) => setConfig({ ...config, streamUrl: e.target.value })}
                 placeholder="https://customer-stream.cloudflare.com"
-                className="w-full bg-[#18181b] border border-[#27272a] px-3.5 py-2 text-xs text-white focus:outline-none focus:border-white font-mono"
+                className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3.5 py-2 text-xs text-[#18181b] focus:outline-none focus:border-[#18181b] font-mono rounded"
               />
             </div>
           </div>
 
           {/* Cloudflare Deployment info */}
-          <div className="space-y-3 border-t border-[#27272a] pt-5">
+          <div className="space-y-3 border-t border-[#ded7cc] pt-5">
             <div className="flex items-center justify-between">
-              <span className="text-xs uppercase tracking-wider text-[#a1a1aa]">
+              <span className="text-xs uppercase tracking-wider text-[#524d45] font-semibold">
                 Cloudflare Pages Deployment
               </span>
-              <span className="text-[11px] font-mono text-emerald-400 bg-emerald-950/70 border border-emerald-800/60 px-2 py-0.5 rounded">
+              <span className="text-[11px] font-mono text-emerald-800 bg-emerald-50 border border-emerald-300 px-2 py-0.5 rounded font-medium">
                 Pages Ready
               </span>
             </div>
-            <div className="bg-[#09090b] border border-[#27272a] p-3 text-xs space-y-2 text-[#a1a1aa]">
+            <div className="bg-[#faf8f5] border border-[#ded7cc] p-3 text-xs space-y-2 text-[#524d45] rounded-lg">
               <p>
-                Deployed on Cloudflare Pages using Vite. SPA routing is managed via <code className="text-white font-mono">public/_redirects</code>.
+                Deployed on Cloudflare Pages using Vite. SPA routing is managed via <code className="text-[#18181b] font-mono font-semibold">public/_redirects</code>.
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 font-mono text-[11px]">
-                <div className="bg-[#121215] p-2 border border-[#272730] rounded">
-                  <span className="text-[#71717a] block text-[10px]">Build command:</span>
-                  <span className="text-amber-300">npm run build</span>
+                <div className="bg-white p-2 border border-[#ded7cc] rounded shadow-sm">
+                  <span className="text-[#787268] block text-[10px]">Build command:</span>
+                  <span className="text-amber-800 font-semibold">npm run build</span>
                 </div>
-                <div className="bg-[#121215] p-2 border border-[#272730] rounded">
-                  <span className="text-[#71717a] block text-[10px]">Build output directory:</span>
-                  <span className="text-emerald-300">dist</span>
+                <div className="bg-white p-2 border border-[#ded7cc] rounded shadow-sm">
+                  <span className="text-[#787268] block text-[10px]">Build output directory:</span>
+                  <span className="text-emerald-800 font-semibold">dist</span>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Sample Cloudflare Worker integration code */}
-          <div className="space-y-2 border-t border-[#27272a] pt-5">
+          <div className="space-y-2 border-t border-[#ded7cc] pt-5">
             <div className="flex items-center justify-between">
-              <span className="text-xs uppercase tracking-wider text-[#a1a1aa]">
+              <span className="text-xs uppercase tracking-wider text-[#524d45] font-semibold">
                 Cloudflare Worker Deployment Snippet
               </span>
               <button
                 type="button"
                 onClick={copySnippet}
-                className="flex items-center gap-1.5 text-xs text-[#a1a1aa] hover:text-white"
+                className="flex items-center gap-1.5 text-xs text-[#524d45] hover:text-[#18181b] font-medium"
               >
-                {copiedCode ? <Check className="h-3.5 w-3.5 text-[#10b981]" /> : <Copy className="h-3.5 w-3.5" />}
+                {copiedCode ? <Check className="h-3.5 w-3.5 text-emerald-600" /> : <Copy className="h-3.5 w-3.5" />}
                 <span>{copiedCode ? 'Copied' : 'Copy Worker Code'}</span>
               </button>
             </div>
-            <pre className="p-4 bg-[#09090b] border border-[#27272a] text-[11px] text-[#a1a1aa] overflow-x-auto font-mono">
+            <pre className="p-4 bg-[#faf8f5] border border-[#ded7cc] text-[11px] text-[#18181b] overflow-x-auto font-mono rounded-lg">
               {sampleWorkerSnippet}
             </pre>
           </div>
 
           {/* Footer */}
-          <div className="pt-4 border-t border-[#27272a] flex items-center justify-between">
+          <div className="pt-4 border-t border-[#ded7cc] flex items-center justify-between">
             <button
               type="button"
               onClick={onClose}
-              className="text-xs text-[#a1a1aa] hover:text-white uppercase tracking-wider"
+              className="text-xs text-[#787268] hover:text-[#18181b] uppercase tracking-wider font-semibold"
             >
               Close
             </button>
 
             <button
               type="submit"
-              className="flex items-center gap-2 bg-[#f4f4f6] text-black px-5 py-2 text-xs font-semibold uppercase tracking-wider hover:bg-white"
+              className="flex items-center gap-2 bg-[#18181b] text-white px-5 py-2 text-xs font-semibold uppercase tracking-wider hover:bg-neutral-800 rounded shadow-sm"
             >
-              {saved ? <Check className="h-4 w-4 text-[#10b981]" /> : null}
+              {saved ? <Check className="h-4 w-4 text-emerald-400" /> : null}
               <span>{saved ? 'Settings Saved' : 'Save Cloudflare Settings'}</span>
             </button>
           </div>

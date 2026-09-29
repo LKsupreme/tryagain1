@@ -75,17 +75,17 @@ export const SiteContentEditor: React.FC<SiteContentEditorProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#0e0e12] text-[#d4d4d8]">
+    <div className="flex flex-col h-full bg-[#f9f8f5] text-[#18181b]">
       {/* Top action bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#24242d] bg-[#14141a] px-6 py-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#ded7cc] bg-white px-6 py-4">
         <div>
           <div className="flex items-center gap-2">
-            <h3 className="font-editorial text-lg text-white">Website Text & Media CMS</h3>
-            <span className="text-[10px] font-mono tracking-wider bg-amber-950/80 text-amber-300 border border-amber-800/60 px-2 py-0.5 rounded">
+            <h3 className="font-editorial text-lg text-[#18181b]">Website Text &amp; Media CMS</h3>
+            <span className="text-[10px] font-mono tracking-wider bg-amber-100 text-amber-900 border border-amber-300 font-semibold px-2 py-0.5 rounded">
               Universal Editor
             </span>
           </div>
-          <p className="text-xs text-[#9b9ba4]">
+          <p className="text-xs text-[#787268]">
             Edit headlines, biography, services, contact channels, and upload custom images or videos.
           </p>
         </div>
@@ -94,7 +94,7 @@ export const SiteContentEditor: React.FC<SiteContentEditorProps> = ({
           <button
             type="button"
             onClick={handleReset}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-[#9b9ba4] hover:text-white border border-[#2b2b35] rounded hover:bg-[#1a1a22] transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-[#524d45] hover:text-[#18181b] border border-[#ded7cc] rounded hover:bg-[#f4f1ea] bg-white transition-colors shadow-sm font-medium"
             title="Reset site text to original defaults"
           >
             <RotateCcw className="h-3.5 w-3.5" />
@@ -105,7 +105,7 @@ export const SiteContentEditor: React.FC<SiteContentEditorProps> = ({
             <button
               type="button"
               onClick={onNavigateToPreview}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-[#9b9ba4] hover:text-white border border-[#2b2b35] rounded hover:bg-[#1a1a22] transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-[#524d45] hover:text-[#18181b] border border-[#ded7cc] rounded hover:bg-[#f4f1ea] bg-white transition-colors shadow-sm font-medium"
             >
               <ExternalLink className="h-3.5 w-3.5" />
               <span>Preview Site</span>
@@ -115,16 +115,16 @@ export const SiteContentEditor: React.FC<SiteContentEditorProps> = ({
           <button
             type="button"
             onClick={() => handleSave()}
-            className="flex items-center gap-1.5 bg-white text-black px-4 py-1.5 text-xs font-semibold rounded hover:bg-neutral-200 transition-colors shadow"
+            className="flex items-center gap-1.5 bg-[#18181b] text-white px-4 py-1.5 text-xs font-semibold rounded hover:bg-neutral-800 transition-colors shadow"
           >
-            {savedSuccess ? <Check className="h-4 w-4 text-emerald-600" /> : <Save className="h-4 w-4" />}
+            {savedSuccess ? <Check className="h-4 w-4 text-emerald-400" /> : <Save className="h-4 w-4" />}
             <span>{savedSuccess ? 'Changes Saved' : 'Save All Changes'}</span>
           </button>
         </div>
       </div>
 
       {/* Tabs navigation */}
-      <div className="flex border-b border-[#24242d] bg-[#111116] px-6 overflow-x-auto">
+      <div className="flex border-b border-[#ded7cc] bg-[#faf8f5] px-6 overflow-x-auto">
         {[
           { id: 'hero', label: '1. Hero Section', icon: Compass },
           { id: 'about', label: '2. Biography & About', icon: User },
@@ -142,11 +142,11 @@ export const SiteContentEditor: React.FC<SiteContentEditorProps> = ({
               onClick={() => setActiveTab(tab.id as ContentTab)}
               className={`py-3 px-4 text-xs font-medium border-b-2 flex items-center gap-2 whitespace-nowrap transition-colors ${
                 isActive
-                  ? 'border-amber-400 text-white bg-[#1a1a22]'
-                  : 'border-transparent text-[#9b9ba4] hover:text-white'
+                  ? 'border-[#18181b] text-[#18181b] bg-white font-semibold shadow-sm'
+                  : 'border-transparent text-[#787268] hover:text-[#18181b]'
               }`}
             >
-              <Icon className={`h-3.5 w-3.5 ${isActive ? 'text-amber-400' : 'text-[#71717a]'}`} />
+              <Icon className={`h-3.5 w-3.5 ${isActive ? 'text-[#18181b]' : 'text-[#a8a196]'}`} />
               <span>{tab.label}</span>
             </button>
           );
@@ -154,18 +154,18 @@ export const SiteContentEditor: React.FC<SiteContentEditorProps> = ({
       </div>
 
       {/* Main Form Body */}
-      <div className="flex-1 overflow-y-auto p-6 max-w-5xl mx-auto w-full space-y-8">
+      <div className="flex-1 overflow-y-auto p-6 max-w-5xl mx-auto w-full space-y-8 bg-[#f9f8f5]">
         {/* ================= HERO TAB ================= */}
         {activeTab === 'hero' && (
           <div className="space-y-6">
-            <div className="border border-[#24242d] bg-[#141419] p-5 rounded-lg space-y-5">
-              <h4 className="text-sm font-semibold text-white uppercase tracking-wider font-mono">
-                Hero Section Copy & Cinematics
+            <div className="border border-[#ded7cc] bg-white p-5 rounded-lg space-y-5 shadow-sm">
+              <h4 className="text-sm font-semibold text-[#18181b] uppercase tracking-wider font-mono">
+                Hero Section Copy &amp; Cinematics
               </h4>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-mono uppercase tracking-wider text-[#9b9ba4]">
+                  <label className="text-xs font-mono uppercase tracking-wider text-[#524d45] font-semibold block">
                     Top Sub-Tagline
                   </label>
                   <input
@@ -173,12 +173,12 @@ export const SiteContentEditor: React.FC<SiteContentEditorProps> = ({
                     value={content.hero.tagline}
                     onChange={(e) => updateHero('tagline', e.target.value)}
                     placeholder="e.g. AI Creative Artist · 3D Designer"
-                    className="w-full bg-[#0c0c0f] border border-[#2b2b35] px-3.5 py-2 text-xs text-white rounded focus:border-amber-400 focus:outline-none"
+                    className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3.5 py-2 text-xs text-[#18181b] rounded focus:border-[#18181b] focus:outline-none focus:bg-white shadow-sm"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-mono uppercase tracking-wider text-[#9b9ba4]">
+                  <label className="text-xs font-mono uppercase tracking-wider text-[#524d45] font-semibold block">
                     Bottom Badge / Experience Note
                   </label>
                   <input
@@ -186,13 +186,13 @@ export const SiteContentEditor: React.FC<SiteContentEditorProps> = ({
                     value={content.hero.badge}
                     onChange={(e) => updateHero('badge', e.target.value)}
                     placeholder="e.g. 7+ Years Experience · Generative AI Workflows"
-                    className="w-full bg-[#0c0c0f] border border-[#2b2b35] px-3.5 py-2 text-xs text-white rounded focus:border-amber-400 focus:outline-none"
+                    className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3.5 py-2 text-xs text-[#18181b] rounded focus:border-[#18181b] focus:outline-none focus:bg-white shadow-sm"
                   />
                 </div>
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-mono uppercase tracking-wider text-[#9b9ba4]">
+                <label className="text-xs font-mono uppercase tracking-wider text-[#524d45] font-semibold block">
                   Main Editorial Headline
                 </label>
                 <textarea
@@ -200,20 +200,20 @@ export const SiteContentEditor: React.FC<SiteContentEditorProps> = ({
                   value={content.hero.heading}
                   onChange={(e) => updateHero('heading', e.target.value)}
                   placeholder="e.g. Visualizing ideas across 3D, design and AI."
-                  className="w-full bg-[#0c0c0f] border border-[#2b2b35] p-3 text-sm text-white font-editorial rounded focus:border-amber-400 focus:outline-none"
+                  className="w-full bg-[#faf8f5] border border-[#ded7cc] p-3 text-sm text-[#18181b] font-editorial rounded focus:border-[#18181b] focus:outline-none focus:bg-white shadow-sm"
                 />
               </div>
 
               {/* Hero Video & Poster Upload */}
-              <div className="border-t border-[#24242d] pt-4 space-y-4">
-                <span className="text-xs uppercase tracking-wider text-white font-mono block">
+              <div className="border-t border-[#ded7cc] pt-4 space-y-4">
+                <span className="text-xs uppercase tracking-wider text-[#18181b] font-mono font-semibold block">
                   Hero Background Cinematic (Video / Render)
                 </span>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Video file upload */}
-                  <div className="space-y-2">
-                    <label className="text-xs text-[#9b9ba4] block">
+                  <div className="space-y-2 bg-[#faf8f5] p-3.5 rounded-lg border border-[#ded7cc]">
+                    <label className="text-xs text-[#524d45] font-semibold block">
                       Background Video URL or Upload MP4
                     </label>
                     <input
@@ -221,7 +221,7 @@ export const SiteContentEditor: React.FC<SiteContentEditorProps> = ({
                       value={content.hero.videoUrl}
                       onChange={(e) => updateHero('videoUrl', e.target.value)}
                       placeholder="https://...mp4 or local path"
-                      className="w-full bg-[#0c0c0f] border border-[#2b2b35] px-3 py-1.5 text-xs text-white font-mono rounded"
+                      className="w-full bg-white border border-[#ded7cc] px-3 py-1.5 text-xs text-[#18181b] font-mono rounded shadow-sm focus:outline-none focus:border-[#18181b]"
                     />
                     <FileUploadDropzone
                       accept="video"
@@ -232,8 +232,8 @@ export const SiteContentEditor: React.FC<SiteContentEditorProps> = ({
                   </div>
 
                   {/* Poster Image upload */}
-                  <div className="space-y-2">
-                    <label className="text-xs text-[#9b9ba4] block">
+                  <div className="space-y-2 bg-[#faf8f5] p-3.5 rounded-lg border border-[#ded7cc]">
+                    <label className="text-xs text-[#524d45] font-semibold block">
                       Poster Image URL or Upload Image
                     </label>
                     <input
@@ -241,7 +241,7 @@ export const SiteContentEditor: React.FC<SiteContentEditorProps> = ({
                       value={content.hero.posterUrl}
                       onChange={(e) => updateHero('posterUrl', e.target.value)}
                       placeholder="Image URL shown while video loads"
-                      className="w-full bg-[#0c0c0f] border border-[#2b2b35] px-3 py-1.5 text-xs text-white font-mono rounded"
+                      className="w-full bg-white border border-[#ded7cc] px-3 py-1.5 text-xs text-[#18181b] font-mono rounded shadow-sm focus:outline-none focus:border-[#18181b]"
                     />
                     <FileUploadDropzone
                       accept="image"
@@ -259,18 +259,18 @@ export const SiteContentEditor: React.FC<SiteContentEditorProps> = ({
         {/* ================= ABOUT TAB ================= */}
         {activeTab === 'about' && (
           <div className="space-y-6">
-            <div className="border border-[#24242d] bg-[#141419] p-5 rounded-lg space-y-5">
-              <h4 className="text-sm font-semibold text-white uppercase tracking-wider font-mono">
-                Studio Biography & Creative Profile
+            <div className="border border-[#ded7cc] bg-white p-5 rounded-lg space-y-5 shadow-sm">
+              <h4 className="text-sm font-semibold text-[#18181b] uppercase tracking-wider font-mono">
+                Studio Biography &amp; Creative Profile
               </h4>
 
               {/* Portrait Image */}
               <div className="grid grid-cols-1 sm:grid-cols-12 gap-6 items-start">
                 <div className="sm:col-span-4 space-y-3">
-                  <span className="text-xs font-mono uppercase tracking-wider text-[#9b9ba4] block">
+                  <span className="text-xs font-mono uppercase tracking-wider text-[#524d45] font-semibold block">
                     Elle Kay Portrait
                   </span>
-                  <div className="aspect-[4/5] bg-[#0c0c0f] border border-[#2b2b35] overflow-hidden rounded relative group">
+                  <div className="aspect-[4/5] bg-[#ede7dd] border border-[#ded7cc] overflow-hidden rounded relative shadow-sm">
                     <img
                       src={content.about.portraitUrl}
                       alt="Elle Kay portrait"
@@ -289,122 +289,122 @@ export const SiteContentEditor: React.FC<SiteContentEditorProps> = ({
                     value={content.about.portraitUrl}
                     onChange={(e) => updateAbout('portraitUrl', e.target.value)}
                     placeholder="Portrait URL"
-                    className="w-full bg-[#0c0c0f] border border-[#2b2b35] px-2.5 py-1 text-[11px] text-white font-mono rounded"
+                    className="w-full bg-[#faf8f5] border border-[#ded7cc] px-2.5 py-1 text-[11px] text-[#18181b] font-mono rounded shadow-sm"
                   />
                 </div>
 
                 <div className="sm:col-span-8 space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="space-y-1">
-                      <label className="text-xs font-mono uppercase tracking-wider text-[#9b9ba4]">
+                      <label className="text-xs font-mono uppercase tracking-wider text-[#524d45] font-semibold block">
                         Artist Name
                       </label>
                       <input
                         type="text"
                         value={content.about.name}
                         onChange={(e) => updateAbout('name', e.target.value)}
-                        className="w-full bg-[#0c0c0f] border border-[#2b2b35] px-3.5 py-2 text-xs text-white rounded"
+                        className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3.5 py-2 text-xs text-[#18181b] rounded shadow-sm"
                       />
                     </div>
                     <div className="space-y-1">
-                      <label className="text-xs font-mono uppercase tracking-wider text-[#9b9ba4]">
+                      <label className="text-xs font-mono uppercase tracking-wider text-[#524d45] font-semibold block">
                         Section Badge
                       </label>
                       <input
                         type="text"
                         value={content.about.sectionBadge}
                         onChange={(e) => updateAbout('sectionBadge', e.target.value)}
-                        className="w-full bg-[#0c0c0f] border border-[#2b2b35] px-3.5 py-2 text-xs text-white rounded"
+                        className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3.5 py-2 text-xs text-[#18181b] rounded shadow-sm"
                       />
                     </div>
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs font-mono uppercase tracking-wider text-[#9b9ba4]">
+                    <label className="text-xs font-mono uppercase tracking-wider text-[#524d45] font-semibold block">
                       Professional Role Tagline
                     </label>
                     <input
                       type="text"
                       value={content.about.role}
                       onChange={(e) => updateAbout('role', e.target.value)}
-                      className="w-full bg-[#0c0c0f] border border-[#2b2b35] px-3.5 py-2 text-xs text-white rounded"
+                      className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3.5 py-2 text-xs text-[#18181b] rounded shadow-sm"
                     />
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs font-mono uppercase tracking-wider text-[#9b9ba4]">
+                    <label className="text-xs font-mono uppercase tracking-wider text-[#524d45] font-semibold block">
                       Featured Quote / Manifesto
                     </label>
                     <input
                       type="text"
                       value={content.about.quote}
                       onChange={(e) => updateAbout('quote', e.target.value)}
-                      className="w-full bg-[#0c0c0f] border border-[#2b2b35] px-3.5 py-2 text-sm text-white font-editorial rounded"
+                      className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3.5 py-2 text-sm text-[#18181b] font-editorial rounded shadow-sm"
                     />
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs font-mono uppercase tracking-wider text-[#9b9ba4]">
+                    <label className="text-xs font-mono uppercase tracking-wider text-[#524d45] font-semibold block">
                       Editorial Biography (80–120 Words)
                     </label>
                     <textarea
                       rows={5}
                       value={content.about.bio}
                       onChange={(e) => updateAbout('bio', e.target.value)}
-                      className="w-full bg-[#0c0c0f] border border-[#2b2b35] p-3 text-xs leading-relaxed text-white rounded focus:border-amber-400 focus:outline-none"
+                      className="w-full bg-[#faf8f5] border border-[#ded7cc] p-3 text-xs leading-relaxed text-[#18181b] rounded focus:border-[#18181b] focus:outline-none shadow-sm"
                     />
                   </div>
                 </div>
               </div>
 
               {/* 3 Experience Stats */}
-              <div className="border-t border-[#24242d] pt-5 space-y-3">
-                <span className="text-xs uppercase tracking-wider text-white font-mono block">
+              <div className="border-t border-[#ded7cc] pt-5 space-y-3">
+                <span className="text-xs uppercase tracking-wider text-[#18181b] font-mono font-semibold block">
                   Key Experience Indicators
                 </span>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div className="bg-[#0c0c0f] p-3 border border-[#2b2b35] rounded space-y-1.5">
+                  <div className="bg-[#faf8f5] p-3 border border-[#ded7cc] rounded-lg space-y-1.5 shadow-sm">
                     <input
                       type="text"
                       value={content.about.stat1Value}
                       onChange={(e) => updateAbout('stat1Value', e.target.value)}
-                      className="w-full bg-[#181820] text-sm text-white font-editorial px-2 py-1 rounded"
+                      className="w-full bg-white text-sm text-[#18181b] font-editorial font-bold px-2 py-1 rounded border border-[#ded7cc]"
                     />
                     <input
                       type="text"
                       value={content.about.stat1Label}
                       onChange={(e) => updateAbout('stat1Label', e.target.value)}
-                      className="w-full bg-transparent text-[11px] text-[#9b9ba4] px-1"
+                      className="w-full bg-transparent text-[11px] text-[#787268] px-1 font-medium"
                     />
                   </div>
 
-                  <div className="bg-[#0c0c0f] p-3 border border-[#2b2b35] rounded space-y-1.5">
+                  <div className="bg-[#faf8f5] p-3 border border-[#ded7cc] rounded-lg space-y-1.5 shadow-sm">
                     <input
                       type="text"
                       value={content.about.stat2Value}
                       onChange={(e) => updateAbout('stat2Value', e.target.value)}
-                      className="w-full bg-[#181820] text-sm text-white font-editorial px-2 py-1 rounded"
+                      className="w-full bg-white text-sm text-[#18181b] font-editorial font-bold px-2 py-1 rounded border border-[#ded7cc]"
                     />
                     <input
                       type="text"
                       value={content.about.stat2Label}
                       onChange={(e) => updateAbout('stat2Label', e.target.value)}
-                      className="w-full bg-transparent text-[11px] text-[#9b9ba4] px-1"
+                      className="w-full bg-transparent text-[11px] text-[#787268] px-1 font-medium"
                     />
                   </div>
 
-                  <div className="bg-[#0c0c0f] p-3 border border-[#2b2b35] rounded space-y-1.5">
+                  <div className="bg-[#faf8f5] p-3 border border-[#ded7cc] rounded-lg space-y-1.5 shadow-sm">
                     <input
                       type="text"
                       value={content.about.stat3Value}
                       onChange={(e) => updateAbout('stat3Value', e.target.value)}
-                      className="w-full bg-[#181820] text-sm text-white font-editorial px-2 py-1 rounded"
+                      className="w-full bg-white text-sm text-[#18181b] font-editorial font-bold px-2 py-1 rounded border border-[#ded7cc]"
                     />
                     <input
                       type="text"
                       value={content.about.stat3Label}
                       onChange={(e) => updateAbout('stat3Label', e.target.value)}
-                      className="w-full bg-transparent text-[11px] text-[#9b9ba4] px-1"
+                      className="w-full bg-transparent text-[11px] text-[#787268] px-1 font-medium"
                     />
                   </div>
                 </div>
@@ -416,21 +416,21 @@ export const SiteContentEditor: React.FC<SiteContentEditorProps> = ({
         {/* ================= SERVICES TAB ================= */}
         {activeTab === 'services' && (
           <div className="space-y-6">
-            <div className="border border-[#24242d] bg-[#141419] p-5 rounded-lg space-y-4">
+            <div className="border border-[#ded7cc] bg-white p-5 rounded-lg space-y-4 shadow-sm">
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="text-sm font-semibold text-white uppercase tracking-wider font-mono">
-                    Services & Visual Scope
+                  <h4 className="text-sm font-semibold text-[#18181b] uppercase tracking-wider font-mono">
+                    Services &amp; Visual Scope
                   </h4>
-                  <p className="text-xs text-[#9b9ba4]">
+                  <p className="text-xs text-[#787268]">
                     Edit titles, scope tags, descriptions, and upload unique renders/videos for each service.
                   </p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-4 border-b border-[#24242d]">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-4 border-b border-[#ded7cc]">
                 <div className="space-y-1">
-                  <label className="text-xs font-mono uppercase text-[#9b9ba4]">Section Title</label>
+                  <label className="text-xs font-mono uppercase text-[#524d45] font-semibold block">Section Title</label>
                   <input
                     type="text"
                     value={content.services.heading}
@@ -440,11 +440,11 @@ export const SiteContentEditor: React.FC<SiteContentEditorProps> = ({
                         services: { ...prev.services, heading: e.target.value },
                       }))
                     }
-                    className="w-full bg-[#0c0c0f] border border-[#2b2b35] px-3 py-1.5 text-xs text-white rounded"
+                    className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3 py-1.5 text-xs text-[#18181b] rounded shadow-sm"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-xs font-mono uppercase text-[#9b9ba4]">Section Badge</label>
+                  <label className="text-xs font-mono uppercase text-[#524d45] font-semibold block">Section Badge</label>
                   <input
                     type="text"
                     value={content.services.badge}
@@ -454,7 +454,7 @@ export const SiteContentEditor: React.FC<SiteContentEditorProps> = ({
                         services: { ...prev.services, badge: e.target.value },
                       }))
                     }
-                    className="w-full bg-[#0c0c0f] border border-[#2b2b35] px-3 py-1.5 text-xs text-white rounded"
+                    className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3 py-1.5 text-xs text-[#18181b] rounded shadow-sm"
                   />
                 </div>
               </div>
@@ -464,11 +464,11 @@ export const SiteContentEditor: React.FC<SiteContentEditorProps> = ({
                 {content.services.items.map((srv, index) => (
                   <div
                     key={srv.id || index}
-                    className="border border-[#2e2e3a] bg-[#101015] p-4 rounded-lg space-y-3"
+                    className="border border-[#ded7cc] bg-[#faf8f5] p-4 rounded-lg space-y-3 shadow-sm"
                   >
-                    <div className="flex items-center justify-between border-b border-[#22222c] pb-2">
+                    <div className="flex items-center justify-between border-b border-[#ded7cc] pb-2">
                       <div className="flex items-center gap-2">
-                        <span className="font-editorial text-amber-400 font-bold text-base">
+                        <span className="font-editorial text-[#877158] font-bold text-base">
                           {srv.number}
                         </span>
                         <input
@@ -482,7 +482,7 @@ export const SiteContentEditor: React.FC<SiteContentEditorProps> = ({
                               services: { ...prev.services, items: newItems },
                             }));
                           }}
-                          className="bg-transparent font-editorial text-lg text-white focus:outline-none border-b border-dashed border-[#444] focus:border-white px-1"
+                          className="bg-transparent font-editorial text-lg text-[#18181b] focus:outline-none border-b border-dashed border-[#ded7cc] focus:border-[#18181b] px-1 font-semibold"
                         />
                       </div>
 
@@ -497,7 +497,7 @@ export const SiteContentEditor: React.FC<SiteContentEditorProps> = ({
                               services: { ...prev.services, items: newItems },
                             }));
                           }}
-                          className="bg-[#181820] border border-[#2e2e3a] text-xs text-white px-2 py-1 rounded"
+                          className="bg-white border border-[#ded7cc] text-xs text-[#18181b] px-2 py-1 rounded shadow-sm font-medium"
                         >
                           <option value="image">Image Render</option>
                           <option value="video">Cinematic Video</option>
@@ -507,7 +507,7 @@ export const SiteContentEditor: React.FC<SiteContentEditorProps> = ({
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <div className="space-y-1">
-                        <label className="text-[11px] text-[#9b9ba4] font-mono">Scope Subtitle</label>
+                        <label className="text-[11px] text-[#524d45] font-mono font-semibold block">Scope Subtitle</label>
                         <input
                           type="text"
                           value={srv.scope}
@@ -519,12 +519,12 @@ export const SiteContentEditor: React.FC<SiteContentEditorProps> = ({
                               services: { ...prev.services, items: newItems },
                             }));
                           }}
-                          className="w-full bg-[#0c0c0f] border border-[#272733] px-3 py-1.5 text-xs text-white rounded"
+                          className="w-full bg-white border border-[#ded7cc] px-3 py-1.5 text-xs text-[#18181b] rounded shadow-sm"
                         />
                       </div>
 
                       <div className="space-y-1">
-                        <label className="text-[11px] text-[#9b9ba4] font-mono">Description</label>
+                        <label className="text-[11px] text-[#524d45] font-mono font-semibold block">Description</label>
                         <input
                           type="text"
                           value={srv.description}
@@ -536,13 +536,13 @@ export const SiteContentEditor: React.FC<SiteContentEditorProps> = ({
                               services: { ...prev.services, items: newItems },
                             }));
                           }}
-                          className="w-full bg-[#0c0c0f] border border-[#272733] px-3 py-1.5 text-xs text-white rounded"
+                          className="w-full bg-white border border-[#ded7cc] px-3 py-1.5 text-xs text-[#18181b] rounded shadow-sm"
                         />
                       </div>
                     </div>
 
                     {/* Media Upload for Service */}
-                    <div className="pt-2 border-t border-[#1c1c24] flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                    <div className="pt-2 border-t border-[#ded7cc] flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                       <div className="flex-1">
                         <input
                           type="text"
@@ -556,7 +556,7 @@ export const SiteContentEditor: React.FC<SiteContentEditorProps> = ({
                             }));
                           }}
                           placeholder="Media URL (R2, CDN, or uploaded asset)"
-                          className="w-full bg-[#0c0c0f] border border-[#272733] px-3 py-1.5 text-xs text-white font-mono rounded"
+                          className="w-full bg-white border border-[#ded7cc] px-3 py-1.5 text-xs text-[#18181b] font-mono rounded shadow-sm"
                         />
                       </div>
                       <FileUploadDropzone
@@ -585,14 +585,14 @@ export const SiteContentEditor: React.FC<SiteContentEditorProps> = ({
         {/* ================= AI CREATIVE TAB ================= */}
         {activeTab === 'aiCreative' && (
           <div className="space-y-6">
-            <div className="border border-[#24242d] bg-[#141419] p-5 rounded-lg space-y-4">
-              <h4 className="text-sm font-semibold text-white uppercase tracking-wider font-mono">
-                Generative AI Practice & Prompt Studies
+            <div className="border border-[#ded7cc] bg-white p-5 rounded-lg space-y-4 shadow-sm">
+              <h4 className="text-sm font-semibold text-[#18181b] uppercase tracking-wider font-mono">
+                Generative AI Practice &amp; Prompt Studies
               </h4>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-4 border-b border-[#24242d]">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-4 border-b border-[#ded7cc]">
                 <div className="space-y-1">
-                  <label className="text-xs font-mono uppercase text-[#9b9ba4]">Section Heading</label>
+                  <label className="text-xs font-mono uppercase text-[#524d45] font-semibold block">Section Heading</label>
                   <input
                     type="text"
                     value={content.aiCreative.heading}
@@ -602,11 +602,11 @@ export const SiteContentEditor: React.FC<SiteContentEditorProps> = ({
                         aiCreative: { ...prev.aiCreative, heading: e.target.value },
                       }))
                     }
-                    className="w-full bg-[#0c0c0f] border border-[#2b2b35] px-3 py-1.5 text-xs text-white rounded"
+                    className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3 py-1.5 text-xs text-[#18181b] rounded shadow-sm"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-xs font-mono uppercase text-[#9b9ba4]">Section Badge</label>
+                  <label className="text-xs font-mono uppercase text-[#524d45] font-semibold block">Section Badge</label>
                   <input
                     type="text"
                     value={content.aiCreative.badge}
@@ -616,7 +616,7 @@ export const SiteContentEditor: React.FC<SiteContentEditorProps> = ({
                         aiCreative: { ...prev.aiCreative, badge: e.target.value },
                       }))
                     }
-                    className="w-full bg-[#0c0c0f] border border-[#2b2b35] px-3 py-1.5 text-xs text-white rounded"
+                    className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3 py-1.5 text-xs text-[#18181b] rounded shadow-sm"
                   />
                 </div>
               </div>
@@ -626,9 +626,9 @@ export const SiteContentEditor: React.FC<SiteContentEditorProps> = ({
                 {content.aiCreative.studies.map((study, idx) => (
                   <div
                     key={study.id || idx}
-                    className="border border-[#2a2a35] bg-[#101015] p-4 rounded space-y-3"
+                    className="border border-[#ded7cc] bg-[#faf8f5] p-4 rounded-lg space-y-3 shadow-sm"
                   >
-                    <div className="flex items-center justify-between border-b border-[#22222a] pb-2">
+                    <div className="flex items-center justify-between border-b border-[#ded7cc] pb-2">
                       <input
                         type="text"
                         value={study.title}
@@ -640,7 +640,7 @@ export const SiteContentEditor: React.FC<SiteContentEditorProps> = ({
                             aiCreative: { ...prev.aiCreative, studies: newStudies },
                           }));
                         }}
-                        className="bg-transparent font-medium text-white text-sm focus:outline-none border-b border-[#444] px-1"
+                        className="bg-transparent font-medium text-[#18181b] text-sm focus:outline-none border-b border-dashed border-[#ded7cc] px-1 font-semibold"
                         placeholder="Study Title"
                       />
 
@@ -657,7 +657,7 @@ export const SiteContentEditor: React.FC<SiteContentEditorProps> = ({
                             }));
                           }}
                           placeholder="Category"
-                          className="bg-[#181820] border border-[#2b2b35] text-xs text-amber-300 px-2 py-1 rounded"
+                          className="bg-white border border-[#ded7cc] text-xs text-amber-800 font-medium px-2 py-1 rounded shadow-sm"
                         />
                         <select
                           value={study.type}
@@ -669,7 +669,7 @@ export const SiteContentEditor: React.FC<SiteContentEditorProps> = ({
                               aiCreative: { ...prev.aiCreative, studies: newStudies },
                             }));
                           }}
-                          className="bg-[#181820] border border-[#2b2b35] text-xs text-white px-2 py-1 rounded"
+                          className="bg-white border border-[#ded7cc] text-xs text-[#18181b] px-2 py-1 rounded shadow-sm font-medium"
                         >
                           <option value="image">Image</option>
                           <option value="video">Video</option>
@@ -678,7 +678,7 @@ export const SiteContentEditor: React.FC<SiteContentEditorProps> = ({
                     </div>
 
                     <div className="space-y-1">
-                      <label className="text-[11px] text-[#9b9ba4] font-mono">Generative Prompt</label>
+                      <label className="text-[11px] text-[#524d45] font-mono font-semibold block">Generative Prompt</label>
                       <textarea
                         rows={2}
                         value={study.prompt}
@@ -690,7 +690,7 @@ export const SiteContentEditor: React.FC<SiteContentEditorProps> = ({
                             aiCreative: { ...prev.aiCreative, studies: newStudies },
                           }));
                         }}
-                        className="w-full bg-[#0c0c0f] border border-[#272733] p-2 text-xs text-white font-mono rounded"
+                        className="w-full bg-white border border-[#ded7cc] p-2 text-xs text-[#18181b] font-mono rounded shadow-sm"
                       />
                     </div>
 
@@ -707,7 +707,7 @@ export const SiteContentEditor: React.FC<SiteContentEditorProps> = ({
                           }));
                         }}
                         placeholder="Media URL"
-                        className="flex-1 bg-[#0c0c0f] border border-[#272733] px-3 py-1.5 text-xs text-white font-mono rounded"
+                        className="flex-1 bg-white border border-[#ded7cc] px-3 py-1.5 text-xs text-[#18181b] font-mono rounded shadow-sm"
                       />
                       <FileUploadDropzone
                         compact
@@ -735,14 +735,14 @@ export const SiteContentEditor: React.FC<SiteContentEditorProps> = ({
         {/* ================= CLIENTS TAB ================= */}
         {activeTab === 'clients' && (
           <div className="space-y-6">
-            <div className="border border-[#24242d] bg-[#141419] p-5 rounded-lg space-y-4">
-              <h4 className="text-sm font-semibold text-white uppercase tracking-wider font-mono">
-                International Clients & Regional Presence
+            <div className="border border-[#ded7cc] bg-white p-5 rounded-lg space-y-4 shadow-sm">
+              <h4 className="text-sm font-semibold text-[#18181b] uppercase tracking-wider font-mono">
+                International Clients &amp; Regional Presence
               </h4>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-4 border-b border-[#24242d]">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-4 border-b border-[#ded7cc]">
                 <div className="space-y-1">
-                  <label className="text-xs font-mono uppercase text-[#9b9ba4]">Heading Countries</label>
+                  <label className="text-xs font-mono uppercase text-[#524d45] font-semibold block">Heading Countries</label>
                   <input
                     type="text"
                     value={content.clients.heading}
@@ -752,11 +752,11 @@ export const SiteContentEditor: React.FC<SiteContentEditorProps> = ({
                         clients: { ...prev.clients, heading: e.target.value },
                       }))
                     }
-                    className="w-full bg-[#0c0c0f] border border-[#2b2b35] px-3 py-1.5 text-xs text-white rounded font-editorial"
+                    className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3 py-1.5 text-xs text-[#18181b] rounded font-editorial shadow-sm"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-xs font-mono uppercase text-[#9b9ba4]">Section Badge</label>
+                  <label className="text-xs font-mono uppercase text-[#524d45] font-semibold block">Section Badge</label>
                   <input
                     type="text"
                     value={content.clients.badge}
@@ -766,15 +766,15 @@ export const SiteContentEditor: React.FC<SiteContentEditorProps> = ({
                         clients: { ...prev.clients, badge: e.target.value },
                       }))
                     }
-                    className="w-full bg-[#0c0c0f] border border-[#2b2b35] px-3 py-1.5 text-xs text-white rounded"
+                    className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3 py-1.5 text-xs text-[#18181b] rounded shadow-sm"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
                 {content.clients.regions.map((reg, index) => (
-                  <div key={reg.id || index} className="bg-[#101015] border border-[#272733] p-3 rounded space-y-2">
-                    <div className="aspect-[4/3] bg-[#0c0c0f] overflow-hidden rounded relative">
+                  <div key={reg.id || index} className="bg-[#faf8f5] border border-[#ded7cc] p-3 rounded-lg space-y-2 shadow-sm">
+                    <div className="aspect-[4/3] bg-[#ede7dd] overflow-hidden rounded relative">
                       <img src={reg.img} alt={reg.region} className="h-full w-full object-cover" />
                     </div>
                     <div className="space-y-1">
@@ -789,7 +789,7 @@ export const SiteContentEditor: React.FC<SiteContentEditorProps> = ({
                             clients: { ...prev.clients, regions: newRegions },
                           }));
                         }}
-                        className="w-full bg-[#181820] text-xs font-semibold text-white px-2 py-1 rounded"
+                        className="w-full bg-white text-xs font-semibold text-[#18181b] px-2 py-1 rounded border border-[#ded7cc] shadow-sm"
                       />
                       <input
                         type="text"
@@ -802,7 +802,7 @@ export const SiteContentEditor: React.FC<SiteContentEditorProps> = ({
                             clients: { ...prev.clients, regions: newRegions },
                           }));
                         }}
-                        className="w-full bg-transparent text-[11px] text-[#9b9ba4] px-1"
+                        className="w-full bg-transparent text-[11px] text-[#787268] px-1 font-medium"
                       />
                     </div>
                     <FileUploadDropzone
@@ -829,83 +829,83 @@ export const SiteContentEditor: React.FC<SiteContentEditorProps> = ({
         {/* ================= CONTACT TAB ================= */}
         {activeTab === 'contact' && (
           <div className="space-y-6">
-            <div className="border border-[#24242d] bg-[#141419] p-5 rounded-lg space-y-4">
-              <h4 className="text-sm font-semibold text-white uppercase tracking-wider font-mono">
-                Contact Channels & Inquiries
+            <div className="border border-[#ded7cc] bg-white p-5 rounded-lg space-y-4 shadow-sm">
+              <h4 className="text-sm font-semibold text-[#18181b] uppercase tracking-wider font-mono">
+                Contact Channels &amp; Inquiries
               </h4>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="text-xs font-mono uppercase text-[#9b9ba4]">Section Badge</label>
+                  <label className="text-xs font-mono uppercase text-[#524d45] font-semibold block">Section Badge</label>
                   <input
                     type="text"
                     value={content.contact.badge}
                     onChange={(e) => updateContact('badge', e.target.value)}
-                    className="w-full bg-[#0c0c0f] border border-[#2b2b35] px-3 py-1.5 text-xs text-white rounded"
+                    className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3 py-1.5 text-xs text-[#18181b] rounded shadow-sm"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-xs font-mono uppercase text-[#9b9ba4]">Heading CTA</label>
+                  <label className="text-xs font-mono uppercase text-[#524d45] font-semibold block">Heading CTA</label>
                   <input
                     type="text"
                     value={content.contact.heading}
                     onChange={(e) => updateContact('heading', e.target.value)}
-                    className="w-full bg-[#0c0c0f] border border-[#2b2b35] px-3 py-1.5 text-xs text-white font-editorial rounded"
+                    className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3 py-1.5 text-xs text-[#18181b] font-editorial rounded shadow-sm"
                   />
                 </div>
               </div>
 
               {/* Direct channels */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-[#24242d]">
-                <div className="bg-[#0c0c0f] p-3 border border-[#272733] rounded space-y-2">
-                  <span className="text-[11px] font-mono uppercase text-amber-300 block">Email Inquiries</span>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-[#ded7cc]">
+                <div className="bg-[#faf8f5] p-3 border border-[#ded7cc] rounded-lg space-y-2 shadow-sm">
+                  <span className="text-[11px] font-mono uppercase text-amber-800 font-bold block">Email Inquiries</span>
                   <input
                     type="email"
                     value={content.contact.email}
                     onChange={(e) => updateContact('email', e.target.value)}
-                    className="w-full bg-[#16161c] border border-[#2b2b35] px-2.5 py-1 text-xs text-white rounded"
+                    className="w-full bg-white border border-[#ded7cc] px-2.5 py-1 text-xs text-[#18181b] rounded shadow-sm"
                   />
                   <input
                     type="text"
                     value={content.contact.emailLabel}
                     onChange={(e) => updateContact('emailLabel', e.target.value)}
-                    className="w-full bg-transparent text-[10px] text-[#71717a] px-1"
+                    className="w-full bg-transparent text-[10px] text-[#787268] px-1 font-medium"
                   />
                 </div>
 
-                <div className="bg-[#0c0c0f] p-3 border border-[#272733] rounded space-y-2">
-                  <span className="text-[11px] font-mono uppercase text-emerald-300 block">WhatsApp Direct</span>
+                <div className="bg-[#faf8f5] p-3 border border-[#ded7cc] rounded-lg space-y-2 shadow-sm">
+                  <span className="text-[11px] font-mono uppercase text-emerald-800 font-bold block">WhatsApp Direct</span>
                   <input
                     type="text"
                     value={content.contact.whatsappNumber}
                     onChange={(e) => updateContact('whatsappNumber', e.target.value)}
                     placeholder="+1 234 567 8900"
-                    className="w-full bg-[#16161c] border border-[#2b2b35] px-2.5 py-1 text-xs text-white rounded"
+                    className="w-full bg-white border border-[#ded7cc] px-2.5 py-1 text-xs text-[#18181b] rounded shadow-sm"
                   />
                   <input
                     type="text"
                     value={content.contact.whatsappMessage}
                     onChange={(e) => updateContact('whatsappMessage', e.target.value)}
                     placeholder="Prefilled message"
-                    className="w-full bg-transparent text-[10px] text-[#71717a] px-1"
+                    className="w-full bg-transparent text-[10px] text-[#787268] px-1 font-medium"
                   />
                 </div>
 
-                <div className="bg-[#0c0c0f] p-3 border border-[#272733] rounded space-y-2">
-                  <span className="text-[11px] font-mono uppercase text-purple-300 block">Instagram / Social</span>
+                <div className="bg-[#faf8f5] p-3 border border-[#ded7cc] rounded-lg space-y-2 shadow-sm">
+                  <span className="text-[11px] font-mono uppercase text-purple-800 font-bold block">Instagram / Social</span>
                   <input
                     type="text"
                     value={content.contact.instagram}
                     onChange={(e) => updateContact('instagram', e.target.value)}
                     placeholder="@ellekay.design"
-                    className="w-full bg-[#16161c] border border-[#2b2b35] px-2.5 py-1 text-xs text-white rounded"
+                    className="w-full bg-white border border-[#ded7cc] px-2.5 py-1 text-xs text-[#18181b] rounded shadow-sm"
                   />
                   <input
                     type="text"
                     value={content.contact.instagramUrl}
                     onChange={(e) => updateContact('instagramUrl', e.target.value)}
                     placeholder="https://instagram.com/..."
-                    className="w-full bg-transparent text-[10px] text-[#71717a] px-1"
+                    className="w-full bg-transparent text-[10px] text-[#787268] px-1 font-medium"
                   />
                 </div>
               </div>
@@ -916,49 +916,49 @@ export const SiteContentEditor: React.FC<SiteContentEditorProps> = ({
         {/* ================= BRANDING TAB ================= */}
         {activeTab === 'branding' && (
           <div className="space-y-6">
-            <div className="border border-[#24242d] bg-[#141419] p-5 rounded-lg space-y-5">
-              <h4 className="text-sm font-semibold text-white uppercase tracking-wider font-mono">
-                Header & Footer Studio Identity
+            <div className="border border-[#ded7cc] bg-white p-5 rounded-lg space-y-5 shadow-sm">
+              <h4 className="text-sm font-semibold text-[#18181b] uppercase tracking-wider font-mono">
+                Header &amp; Footer Studio Identity
               </h4>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="text-xs font-mono uppercase text-[#9b9ba4]">Logo / Brand Name</label>
+                  <label className="text-xs font-mono uppercase text-[#524d45] font-semibold block">Logo / Brand Name</label>
                   <input
                     type="text"
                     value={content.header.brandName}
                     onChange={(e) => updateBranding('header', 'brandName', e.target.value)}
-                    className="w-full bg-[#0c0c0f] border border-[#2b2b35] px-3.5 py-2 text-xs text-white rounded"
+                    className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3.5 py-2 text-xs text-[#18181b] rounded shadow-sm"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-xs font-mono uppercase text-[#9b9ba4]">Header Subtitle</label>
+                  <label className="text-xs font-mono uppercase text-[#524d45] font-semibold block">Header Subtitle</label>
                   <input
                     type="text"
                     value={content.header.brandTitle}
                     onChange={(e) => updateBranding('header', 'brandTitle', e.target.value)}
-                    className="w-full bg-[#0c0c0f] border border-[#2b2b35] px-3.5 py-2 text-xs text-white rounded"
+                    className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3.5 py-2 text-xs text-[#18181b] rounded shadow-sm"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-[#24242d]">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-[#ded7cc]">
                 <div className="space-y-1">
-                  <label className="text-xs font-mono uppercase text-[#9b9ba4]">Footer Studio Tagline</label>
+                  <label className="text-xs font-mono uppercase text-[#524d45] font-semibold block">Footer Studio Tagline</label>
                   <input
                     type="text"
                     value={content.footer.tagline}
                     onChange={(e) => updateBranding('footer', 'tagline', e.target.value)}
-                    className="w-full bg-[#0c0c0f] border border-[#2b2b35] px-3.5 py-2 text-xs text-white rounded"
+                    className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3.5 py-2 text-xs text-[#18181b] rounded shadow-sm"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-xs font-mono uppercase text-[#9b9ba4]">Copyright Text</label>
+                  <label className="text-xs font-mono uppercase text-[#524d45] font-semibold block">Copyright Text</label>
                   <input
                     type="text"
                     value={content.footer.copyright}
                     onChange={(e) => updateBranding('footer', 'copyright', e.target.value)}
-                    className="w-full bg-[#0c0c0f] border border-[#2b2b35] px-3.5 py-2 text-xs text-white rounded"
+                    className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3.5 py-2 text-xs text-[#18181b] rounded shadow-sm"
                   />
                 </div>
               </div>

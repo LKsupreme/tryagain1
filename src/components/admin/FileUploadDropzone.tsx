@@ -94,20 +94,20 @@ export const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
           type="button"
           disabled={isUploading}
           onClick={() => fileInputRef.current?.click()}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-[#1f1f26] hover:bg-[#2b2b35] text-white border border-[#343442] rounded transition-colors disabled:opacity-50"
+          className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-white hover:bg-[#f4f1ea] text-[#18181b] border border-[#ded7cc] rounded transition-colors shadow-sm disabled:opacity-50 font-medium"
         >
           {isUploading ? (
-            <Loader2 className="h-3.5 w-3.5 animate-spin text-[#d4af37]" />
+            <Loader2 className="h-3.5 w-3.5 animate-spin text-[#877158]" />
           ) : accept === 'video' ? (
-            <Film className="h-3.5 w-3.5 text-amber-400" />
+            <Film className="h-3.5 w-3.5 text-amber-600" />
           ) : (
-            <ImageIcon className="h-3.5 w-3.5 text-emerald-400" />
+            <ImageIcon className="h-3.5 w-3.5 text-emerald-600" />
           )}
           <span>{isUploading ? 'Uploading...' : label || 'Upload File'}</span>
         </button>
-        {uploadError && <p className="text-[11px] text-red-400 mt-1">{uploadError}</p>}
+        {uploadError && <p className="text-[11px] text-red-600 font-medium mt-1">{uploadError}</p>}
         {successName && (
-          <p className="text-[11px] text-emerald-400 mt-1 flex items-center gap-1">
+          <p className="text-[11px] text-emerald-700 font-medium mt-1 flex items-center gap-1">
             <Check className="h-3 w-3" /> Uploaded {successName}
           </p>
         )}
@@ -123,8 +123,8 @@ export const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
       onClick={() => fileInputRef.current?.click()}
       className={`relative border-2 border-dashed rounded-lg p-5 text-center cursor-pointer transition-all ${
         isDragging
-          ? 'border-emerald-400 bg-emerald-950/20'
-          : 'border-[#32323e] hover:border-[#4b4b5c] bg-[#141419]'
+          ? 'border-emerald-600 bg-emerald-50'
+          : 'border-[#ded7cc] hover:border-[#18181b] bg-[#faf8f5]'
       } ${className}`}
     >
       <input
@@ -137,45 +137,45 @@ export const FileUploadDropzone: React.FC<FileUploadDropzoneProps> = ({
 
       <div className="flex flex-col items-center justify-center space-y-2 pointer-events-none">
         {isUploading ? (
-          <Loader2 className="h-8 w-8 text-[#d4af37] animate-spin" />
+          <Loader2 className="h-8 w-8 text-[#877158] animate-spin" />
         ) : (
           <div className="flex items-center gap-2">
-            <div className="h-9 w-9 rounded-full bg-[#202028] flex items-center justify-center text-white">
-              <UploadCloud className="h-5 w-5 text-neutral-300" />
+            <div className="h-9 w-9 rounded-full bg-white border border-[#ded7cc] flex items-center justify-center text-[#18181b] shadow-sm">
+              <UploadCloud className="h-5 w-5 text-[#524d45]" />
             </div>
             {accept === 'video' ? (
-              <Film className="h-4 w-4 text-amber-400" />
+              <Film className="h-4 w-4 text-amber-600" />
             ) : accept === 'image' ? (
-              <ImageIcon className="h-4 w-4 text-emerald-400" />
+              <ImageIcon className="h-4 w-4 text-emerald-600" />
             ) : (
               <div className="flex gap-1">
-                <ImageIcon className="h-3.5 w-3.5 text-emerald-400" />
-                <Film className="h-3.5 w-3.5 text-amber-400" />
+                <ImageIcon className="h-3.5 w-3.5 text-emerald-600" />
+                <Film className="h-3.5 w-3.5 text-amber-600" />
               </div>
             )}
           </div>
         )}
 
         <div className="space-y-0.5">
-          <p className="text-xs font-medium text-white">
+          <p className="text-xs font-semibold text-[#18181b]">
             {isUploading
               ? 'Processing and uploading file...'
               : label || 'Drop Image or Video here, or click to browse'}
           </p>
-          <p className="text-[11px] text-[#858591]">
-            Supports high-resolution PNG, JPG, WebP, MP4, and WebM videos
+          <p className="text-[11px] text-[#787268]">
+            Supports high-resolution PNG, JPG, WebP images, and MP4 / WebM video reels
           </p>
         </div>
 
         {uploadError && (
-          <div className="flex items-center gap-1 text-[11px] text-red-400 mt-2">
+          <div className="flex items-center gap-1 text-[11px] text-red-600 font-medium mt-2">
             <AlertCircle className="h-3.5 w-3.5" />
             <span>{uploadError}</span>
           </div>
         )}
 
         {successName && (
-          <div className="flex items-center gap-1 text-[11px] text-emerald-400 mt-2">
+          <div className="flex items-center gap-1 text-[11px] text-emerald-700 font-medium mt-2">
             <Check className="h-3.5 w-3.5" />
             <span>Successfully uploaded {successName}</span>
           </div>

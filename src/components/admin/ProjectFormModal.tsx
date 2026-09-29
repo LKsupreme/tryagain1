@@ -214,31 +214,31 @@ export const ProjectFormModal: React.FC<ProjectFormModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 sm:p-6 backdrop-blur-md overflow-y-auto">
-      <div className="relative w-full max-w-4xl max-h-[92vh] flex flex-col border border-[#2b2b35] bg-[#121216] rounded-md shadow-2xl overflow-hidden my-auto text-[#e4e4e7]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 sm:p-6 backdrop-blur-sm overflow-y-auto">
+      <div className="relative w-full max-w-4xl max-h-[92vh] flex flex-col border border-[#ded7cc] bg-white rounded-lg shadow-2xl overflow-hidden my-auto text-[#18181b]">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-[#22222a] px-6 py-4 bg-[#16161c]">
+        <div className="flex items-center justify-between border-b border-[#ded7cc] px-6 py-4 bg-[#faf8f5]">
           <div>
-            <h3 className="text-base font-semibold text-white">
+            <h3 className="text-base font-semibold text-[#18181b]">
               {projectToEdit ? `Editing: ${projectToEdit.title}` : 'New Media Project'}
             </h3>
-            <p className="text-xs text-[#9b9ba4]">
+            <p className="text-xs text-[#787268]">
               Add images, videos, and reels in your desired visual sequence
             </p>
           </div>
-          <button onClick={onClose} className="p-1.5 text-[#9b9ba4] hover:text-white">
+          <button onClick={onClose} className="p-1.5 text-[#787268] hover:text-[#18181b] transition-colors">
             <X className="h-5 w-5" />
           </button>
         </div>
 
         {/* Tab selection */}
-        <div className="flex border-b border-[#22222a] bg-[#141418] px-6">
+        <div className="flex border-b border-[#ded7cc] bg-[#f4f1ea] px-6">
           <button
             onClick={() => setActiveTab('media')}
             className={`py-3 px-4 text-xs font-semibold uppercase tracking-wider border-b-2 transition-colors ${
               activeTab === 'media'
-                ? 'border-white text-white'
-                : 'border-transparent text-[#7e7e88] hover:text-white'
+                ? 'border-[#18181b] text-[#18181b] bg-white'
+                : 'border-transparent text-[#787268] hover:text-[#18181b]'
             }`}
           >
             1. Media Sequence ({mediaList.length} items)
@@ -247,8 +247,8 @@ export const ProjectFormModal: React.FC<ProjectFormModalProps> = ({
             onClick={() => setActiveTab('details')}
             className={`py-3 px-4 text-xs font-semibold uppercase tracking-wider border-b-2 transition-colors ${
               activeTab === 'details'
-                ? 'border-white text-white'
-                : 'border-transparent text-[#7e7e88] hover:text-white'
+                ? 'border-[#18181b] text-[#18181b] bg-white'
+                : 'border-transparent text-[#787268] hover:text-[#18181b]'
             }`}
           >
             2. Project Info & Publishing
@@ -256,13 +256,13 @@ export const ProjectFormModal: React.FC<ProjectFormModalProps> = ({
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-6">
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-6 bg-white">
           {activeTab === 'media' && (
             <div className="space-y-8">
               {/* Cover Media Section */}
-              <div className="bg-[#16161f] border border-[#272733] p-4 rounded-md space-y-3">
+              <div className="bg-[#faf8f5] border border-[#ded7cc] p-4 rounded-lg space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs uppercase tracking-wider font-semibold text-white">
+                  <span className="text-xs uppercase tracking-wider font-semibold text-[#18181b]">
                     Primary Cover Media (Hero View)
                   </span>
                   <button
@@ -271,9 +271,9 @@ export const ProjectFormModal: React.FC<ProjectFormModalProps> = ({
                       setPickingTarget('cover');
                       setMediaLibPickerOpen(true);
                     }}
-                    className="flex items-center gap-1.5 text-xs text-[#a1a1aa] hover:text-white bg-[#22222d] px-2.5 py-1 rounded"
+                    className="flex items-center gap-1.5 text-xs text-[#524d45] hover:text-[#18181b] bg-white border border-[#ded7cc] px-2.5 py-1 rounded shadow-sm"
                   >
-                    <FolderOpen className="h-3.5 w-3.5" />
+                    <FolderOpen className="h-3.5 w-3.5 text-blue-600" />
                     <span>Choose from Media Library</span>
                   </button>
                 </div>
@@ -282,7 +282,7 @@ export const ProjectFormModal: React.FC<ProjectFormModalProps> = ({
                   <select
                     value={coverType}
                     onChange={(e) => setCoverType(e.target.value as 'image' | 'video')}
-                    className="sm:col-span-3 bg-[#1c1c24] border border-[#2e2e3c] px-3 py-2 text-xs text-white rounded focus:outline-none"
+                    className="sm:col-span-3 bg-white border border-[#ded7cc] px-3 py-2 text-xs text-[#18181b] rounded focus:outline-none focus:border-[#18181b]"
                   >
                     <option value="image">Image Cover</option>
                     <option value="video">Cinematic Video Cover</option>
@@ -294,7 +294,7 @@ export const ProjectFormModal: React.FC<ProjectFormModalProps> = ({
                     placeholder="Cover URL (Image or MP4)"
                     value={coverUrl}
                     onChange={(e) => setCoverUrl(e.target.value)}
-                    className="sm:col-span-6 bg-[#1c1c24] border border-[#2e2e3c] px-3 py-2 text-xs text-white rounded focus:outline-none font-mono"
+                    className="sm:col-span-6 bg-white border border-[#ded7cc] px-3 py-2 text-xs text-[#18181b] rounded focus:outline-none focus:border-[#18181b] font-mono"
                   />
 
                   <div className="sm:col-span-3">
@@ -316,10 +316,10 @@ export const ProjectFormModal: React.FC<ProjectFormModalProps> = ({
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h4 className="text-xs uppercase tracking-wider font-semibold text-white">
+                    <h4 className="text-xs uppercase tracking-wider font-semibold text-[#18181b]">
                       Story Sequence ({mediaList.length} Renders / Videos)
                     </h4>
-                    <p className="text-[11px] text-[#8e8e98]">
+                    <p className="text-[11px] text-[#787268]">
                       Displayed on the public project page in this exact order
                     </p>
                   </div>
@@ -330,9 +330,9 @@ export const ProjectFormModal: React.FC<ProjectFormModalProps> = ({
                       setPickingTarget('gallery');
                       setMediaLibPickerOpen(true);
                     }}
-                    className="flex items-center gap-1.5 bg-[#252532] text-white text-xs px-3 py-1.5 rounded hover:bg-[#323242]"
+                    className="flex items-center gap-1.5 bg-white border border-[#ded7cc] text-[#18181b] text-xs px-3 py-1.5 rounded hover:bg-[#faf8f5] shadow-sm font-medium"
                   >
-                    <FolderOpen className="h-3.5 w-3.5" />
+                    <FolderOpen className="h-3.5 w-3.5 text-blue-600" />
                     <span>Pick from Library</span>
                   </button>
                 </div>
@@ -361,15 +361,15 @@ export const ProjectFormModal: React.FC<ProjectFormModalProps> = ({
                   {mediaList.map((item, idx) => (
                     <div
                       key={item.id}
-                      className="flex items-center gap-3 bg-[#181820] border border-[#272733] p-2.5 rounded group"
+                      className="flex items-center gap-3 bg-[#faf8f5] border border-[#ded7cc] p-2.5 rounded group hover:border-[#18181b] transition-colors"
                     >
                       {/* Move arrows */}
-                      <div className="flex flex-col gap-0.5 text-[#65636f]">
+                      <div className="flex flex-col gap-0.5 text-[#787268]">
                         <button
                           type="button"
                           onClick={() => moveMedia(idx, 'up')}
                           disabled={idx === 0}
-                          className="hover:text-white disabled:opacity-20"
+                          className="hover:text-[#18181b] disabled:opacity-20"
                           title="Move up"
                         >
                           <ArrowUp className="h-3.5 w-3.5" />
@@ -378,7 +378,7 @@ export const ProjectFormModal: React.FC<ProjectFormModalProps> = ({
                           type="button"
                           onClick={() => moveMedia(idx, 'down')}
                           disabled={idx === mediaList.length - 1}
-                          className="hover:text-white disabled:opacity-20"
+                          className="hover:text-[#18181b] disabled:opacity-20"
                           title="Move down"
                         >
                           <ArrowDown className="h-3.5 w-3.5" />
@@ -386,12 +386,12 @@ export const ProjectFormModal: React.FC<ProjectFormModalProps> = ({
                       </div>
 
                       {/* Number */}
-                      <span className="text-xs font-mono text-[#65636f] w-5 text-center">
+                      <span className="text-xs font-mono text-[#787268] w-5 text-center font-semibold">
                         {idx + 1}
                       </span>
 
                       {/* Thumbnail */}
-                      <div className="h-12 w-16 bg-black overflow-hidden shrink-0 rounded border border-[#2b2b36] relative">
+                      <div className="h-12 w-16 bg-[#ede7dd] overflow-hidden shrink-0 rounded border border-[#ded7cc] relative">
                         {item.type === 'video' ? (
                           <video
                             src={item.url}
@@ -406,7 +406,7 @@ export const ProjectFormModal: React.FC<ProjectFormModalProps> = ({
                             referrerPolicy="no-referrer"
                           />
                         )}
-                        <span className="absolute bottom-0.5 right-0.5 bg-black/70 text-[8px] text-white px-1 uppercase rounded">
+                        <span className="absolute bottom-0.5 right-0.5 bg-black/75 text-[8px] text-white px-1 uppercase rounded font-mono">
                           {item.type}
                         </span>
                       </div>
@@ -422,9 +422,9 @@ export const ProjectFormModal: React.FC<ProjectFormModalProps> = ({
                             setMediaList(updated);
                           }}
                           placeholder="Optional visual caption..."
-                          className="w-full bg-transparent text-xs text-white focus:outline-none placeholder-[#555]"
+                          className="w-full bg-transparent text-xs text-[#18181b] focus:outline-none placeholder-[#a8a196] font-medium"
                         />
-                        <span className="text-[10px] text-[#65636f] truncate block font-mono">
+                        <span className="text-[10px] text-[#787268] truncate block font-mono">
                           {item.url}
                         </span>
                       </div>
@@ -433,7 +433,7 @@ export const ProjectFormModal: React.FC<ProjectFormModalProps> = ({
                       <button
                         type="button"
                         onClick={() => removeMedia(idx)}
-                        className="p-1.5 text-red-400 hover:bg-red-950/30 rounded"
+                        className="p-1.5 text-red-600 hover:bg-red-50 rounded transition-colors"
                         title="Remove from project"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
@@ -443,15 +443,15 @@ export const ProjectFormModal: React.FC<ProjectFormModalProps> = ({
                 </div>
 
                 {/* Sub-form to add new media item via URL directly */}
-                <div className="border border-dashed border-[#323242] p-4 rounded bg-[#14141a] space-y-3">
-                  <span className="text-xs uppercase tracking-wider text-white font-medium block">
-                    + Add New Media Item (Image or Video)
+                <div className="border border-dashed border-[#ded7cc] p-4 rounded-lg bg-[#faf8f5] space-y-3">
+                  <span className="text-xs uppercase tracking-wider text-[#18181b] font-semibold block">
+                    + Add New Media Item via URL (Image or Video)
                   </span>
                   <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
                     <select
                       value={newMediaType}
                       onChange={(e) => setNewMediaType(e.target.value as 'image' | 'video')}
-                      className="sm:col-span-3 bg-[#1c1c24] border border-[#2e2e3c] px-2.5 py-1.5 text-xs text-white rounded focus:outline-none"
+                      className="sm:col-span-3 bg-white border border-[#ded7cc] px-2.5 py-1.5 text-xs text-[#18181b] rounded focus:outline-none focus:border-[#18181b]"
                     >
                       <option value="image">Still Image</option>
                       <option value="video">Video Reel</option>
@@ -462,7 +462,7 @@ export const ProjectFormModal: React.FC<ProjectFormModalProps> = ({
                       placeholder="Image / Video URL"
                       value={newMediaUrl}
                       onChange={(e) => setNewMediaUrl(e.target.value)}
-                      className="sm:col-span-6 bg-[#1c1c24] border border-[#2e2e3c] px-3 py-1.5 text-xs text-white rounded focus:outline-none font-mono"
+                      className="sm:col-span-6 bg-white border border-[#ded7cc] px-3 py-1.5 text-xs text-[#18181b] rounded focus:outline-none focus:border-[#18181b] font-mono"
                     />
 
                     <input
@@ -470,7 +470,7 @@ export const ProjectFormModal: React.FC<ProjectFormModalProps> = ({
                       placeholder="Caption"
                       value={newMediaCaption}
                       onChange={(e) => setNewMediaCaption(e.target.value)}
-                      className="sm:col-span-3 bg-[#1c1c24] border border-[#2e2e3c] px-3 py-1.5 text-xs text-white rounded focus:outline-none"
+                      className="sm:col-span-3 bg-white border border-[#ded7cc] px-3 py-1.5 text-xs text-[#18181b] rounded focus:outline-none focus:border-[#18181b]"
                     />
                   </div>
 
@@ -478,7 +478,7 @@ export const ProjectFormModal: React.FC<ProjectFormModalProps> = ({
                     <button
                       type="button"
                       onClick={handleAddMedia}
-                      className="bg-white text-black px-4 py-1.5 text-xs font-semibold rounded hover:bg-neutral-200"
+                      className="bg-[#18181b] text-white px-4 py-1.5 text-xs font-semibold rounded hover:bg-neutral-800 shadow-sm"
                     >
                       Insert into Sequence
                     </button>
@@ -492,7 +492,7 @@ export const ProjectFormModal: React.FC<ProjectFormModalProps> = ({
             <div className="space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="space-y-1.5">
-                  <label className="text-xs uppercase tracking-wider text-[#9b9ba4] block">
+                  <label className="text-xs uppercase tracking-wider text-[#524d45] font-semibold block">
                     Project Title *
                   </label>
                   <input
@@ -501,12 +501,12 @@ export const ProjectFormModal: React.FC<ProjectFormModalProps> = ({
                     value={title}
                     onChange={(e) => handleTitleChange(e.target.value)}
                     placeholder="e.g. Villa Solis"
-                    className="w-full bg-[#1c1c24] border border-[#2e2e3c] px-3.5 py-2 text-sm text-white rounded focus:outline-none focus:border-white"
+                    className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3.5 py-2 text-sm text-[#18181b] rounded focus:outline-none focus:border-[#18181b]"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs uppercase tracking-wider text-[#9b9ba4] block">
+                  <label className="text-xs uppercase tracking-wider text-[#524d45] font-semibold block">
                     Slug (/project/:slug) *
                   </label>
                   <input
@@ -515,20 +515,20 @@ export const ProjectFormModal: React.FC<ProjectFormModalProps> = ({
                     value={slug}
                     onChange={(e) => setSlug(e.target.value)}
                     placeholder="villa-solis"
-                    className="w-full bg-[#1c1c24] border border-[#2e2e3c] px-3.5 py-2 text-sm text-white font-mono rounded focus:outline-none focus:border-white"
+                    className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3.5 py-2 text-sm text-[#18181b] font-mono rounded focus:outline-none focus:border-[#18181b]"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                 <div className="space-y-1.5">
-                  <label className="text-xs uppercase tracking-wider text-[#9b9ba4] block">
+                  <label className="text-xs uppercase tracking-wider text-[#524d45] font-semibold block">
                     Category
                   </label>
                   <select
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
-                    className="w-full bg-[#1c1c24] border border-[#2e2e3c] px-3 py-2 text-xs text-white rounded focus:outline-none"
+                    className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3 py-2 text-xs text-[#18181b] rounded focus:outline-none focus:border-[#18181b]"
                   >
                     {CATEGORIES.map((cat) => (
                       <option key={cat} value={cat}>
@@ -539,7 +539,7 @@ export const ProjectFormModal: React.FC<ProjectFormModalProps> = ({
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs uppercase tracking-wider text-[#9b9ba4] block">
+                  <label className="text-xs uppercase tracking-wider text-[#524d45] font-semibold block">
                     Year
                   </label>
                   <input
@@ -547,12 +547,12 @@ export const ProjectFormModal: React.FC<ProjectFormModalProps> = ({
                     value={year}
                     onChange={(e) => setYear(e.target.value)}
                     placeholder="2026"
-                    className="w-full bg-[#1c1c24] border border-[#2e2e3c] px-3 py-2 text-xs text-white rounded focus:outline-none"
+                    className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3 py-2 text-xs text-[#18181b] rounded focus:outline-none focus:border-[#18181b]"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs uppercase tracking-wider text-[#9b9ba4] block">
+                  <label className="text-xs uppercase tracking-wider text-[#524d45] font-semibold block">
                     Location
                   </label>
                   <input
@@ -560,13 +560,13 @@ export const ProjectFormModal: React.FC<ProjectFormModalProps> = ({
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
                     placeholder="Cap d’Antibes, France"
-                    className="w-full bg-[#1c1c24] border border-[#2e2e3c] px-3 py-2 text-xs text-white rounded focus:outline-none"
+                    className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3 py-2 text-xs text-[#18181b] rounded focus:outline-none focus:border-[#18181b]"
                   />
                 </div>
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs uppercase tracking-wider text-[#9b9ba4] block">
+                <label className="text-xs uppercase tracking-wider text-[#524d45] font-semibold block">
                   Short Description (1–2 sentences)
                 </label>
                 <textarea
@@ -574,25 +574,25 @@ export const ProjectFormModal: React.FC<ProjectFormModalProps> = ({
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Warm limestone, natural light, and indoor-outdoor living overlooking the Mediterranean."
-                  className="w-full bg-[#1c1c24] border border-[#2e2e3c] p-3 text-xs text-white rounded focus:outline-none"
+                  className="w-full bg-[#faf8f5] border border-[#ded7cc] p-3 text-xs text-[#18181b] rounded focus:outline-none focus:border-[#18181b]"
                 />
               </div>
 
               {/* Visibility Controls */}
-              <div className="bg-[#181820] border border-[#272733] p-4 rounded space-y-4">
+              <div className="bg-[#faf8f5] border border-[#ded7cc] p-4 rounded-lg space-y-4">
                 <div className="flex flex-wrap items-center gap-8">
                   <label className="flex items-center gap-3 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={isPublished}
                       onChange={(e) => setIsPublished(e.target.checked)}
-                      className="h-4 w-4 accent-emerald-500"
+                      className="h-4 w-4 accent-emerald-600"
                     />
                     <div>
-                      <span className="text-xs font-semibold text-white block">
+                      <span className="text-xs font-semibold text-[#18181b] block">
                         Published Live
                       </span>
-                      <span className="text-[11px] text-[#71717a]">
+                      <span className="text-[11px] text-[#787268]">
                         Appears on public portfolio
                       </span>
                     </div>
@@ -603,13 +603,13 @@ export const ProjectFormModal: React.FC<ProjectFormModalProps> = ({
                       type="checkbox"
                       checked={isFeatured}
                       onChange={(e) => setIsFeatured(e.target.checked)}
-                      className="h-4 w-4 accent-amber-500"
+                      className="h-4 w-4 accent-amber-600"
                     />
                     <div>
-                      <span className="text-xs font-semibold text-white block">
+                      <span className="text-xs font-semibold text-[#18181b] block">
                         Featured on Homepage
                       </span>
-                      <span className="text-[11px] text-[#71717a]">
+                      <span className="text-[11px] text-[#787268]">
                         Prioritized in homepage editorial flow
                       </span>
                     </div>
@@ -620,18 +620,18 @@ export const ProjectFormModal: React.FC<ProjectFormModalProps> = ({
           )}
 
           {/* Footer Save Action */}
-          <div className="pt-4 border-t border-[#22222a] flex items-center justify-between">
+          <div className="pt-4 border-t border-[#ded7cc] flex items-center justify-between">
             <button
               type="button"
               onClick={onClose}
-              className="text-xs text-[#9b9ba4] hover:text-white"
+              className="text-xs text-[#787268] hover:text-[#18181b] font-medium transition-colors"
             >
               Cancel
             </button>
 
             <button
               type="submit"
-              className="flex items-center gap-2 bg-white text-black px-5 py-2 text-xs font-semibold rounded hover:bg-neutral-200 transition-colors"
+              className="flex items-center gap-2 bg-[#18181b] text-white px-5 py-2 text-xs font-semibold rounded hover:bg-neutral-800 transition-colors shadow-sm"
             >
               <Check className="h-4 w-4" />
               <span>{projectToEdit ? 'Save Changes' : 'Publish Project'}</span>

@@ -36,11 +36,16 @@ export default function App() {
 
   const [currentPath, setCurrentPath] = useState<string>(getResolvedPath);
 
-  // Check if admin is currently authenticated
-  const [isAdmin, setIsAdmin] = useState<boolean>(() => {
+  // Check if admin is currently authenticated (localStorage + sessionStorage)
+  const checkAdminAuth = () => {
     if (typeof window === 'undefined') return false;
-    return sessionStorage.getItem('elle_kay_admin_auth') === 'true';
-  });
+    return (
+      localStorage.getItem('elle_kay_admin_auth') === 'true' ||
+      sessionStorage.getItem('elle_kay_admin_auth') === 'true'
+    );
+  };
+
+  const [isAdmin, setIsAdmin] = useState<boolean>(checkAdminAuth);
 
   // Sitemap/robots modal state
   const [sitemapModalOpen, setSitemapModalOpen] = useState(false);
@@ -60,11 +65,9 @@ export default function App() {
     };
   }, []);
 
-  // Update isAdmin when navigation or sessionStorage changes
+  // Update isAdmin when navigation or storage changes
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setIsAdmin(sessionStorage.getItem('elle_kay_admin_auth') === 'true');
-    }
+    setIsAdmin(checkAdminAuth());
   }, [currentPath]);
 
   // Listen to browser popstate and hashchange (back/forward navigation)

@@ -74,15 +74,15 @@ export const MediaLibraryModal: React.FC<MediaLibraryModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 sm:p-6 backdrop-blur-md">
-      <div className="relative w-full max-w-5xl max-h-[90vh] flex flex-col border border-[#2b2b35] bg-[#121216] rounded-md shadow-2xl overflow-hidden text-[#e4e4e7]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 sm:p-6 backdrop-blur-sm">
+      <div className="relative w-full max-w-5xl max-h-[90vh] flex flex-col border border-[#ded7cc] bg-white rounded-lg shadow-2xl overflow-hidden text-[#18181b]">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-[#22222a] px-6 py-4 bg-[#16161c]">
+        <div className="flex items-center justify-between border-b border-[#ded7cc] px-6 py-4 bg-[#faf8f5]">
           <div>
-            <h3 className="text-base font-semibold text-white">
+            <h3 className="text-base font-semibold text-[#18181b]">
               Studio Media Library
             </h3>
-            <p className="text-xs text-[#9b9ba4]">
+            <p className="text-xs text-[#787268]">
               {selectMode
                 ? 'Click an image or video to insert into project'
                 : 'Upload, manage, and reuse renders and video reels'}
@@ -92,14 +92,14 @@ export const MediaLibraryModal: React.FC<MediaLibraryModalProps> = ({
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsAdding(!isAdding)}
-              className="flex items-center gap-1.5 bg-white text-black px-3 py-1.5 text-xs font-semibold rounded hover:bg-neutral-200 transition-colors"
+              className="flex items-center gap-1.5 bg-[#18181b] text-white px-3 py-1.5 text-xs font-semibold rounded hover:bg-neutral-800 transition-colors shadow-sm"
             >
               <Plus className="h-3.5 w-3.5" />
               <span>{isAdding ? 'Cancel' : 'Add Asset'}</span>
             </button>
             <button
               onClick={onClose}
-              className="p-1.5 text-[#9b9ba4] hover:text-white"
+              className="p-1.5 text-[#787268] hover:text-[#18181b] rounded transition-colors"
               aria-label="Close"
             >
               <X className="h-5 w-5" />
@@ -109,8 +109,8 @@ export const MediaLibraryModal: React.FC<MediaLibraryModalProps> = ({
 
         {/* Add New Asset Drawer */}
         {isAdding && (
-          <div className="border-b border-[#22222a] bg-[#1a1a22] p-5 space-y-4">
-            <span className="text-xs uppercase tracking-wider text-white font-medium block">
+          <div className="border-b border-[#ded7cc] bg-[#f4f1ea] p-5 space-y-4">
+            <span className="text-xs uppercase tracking-wider text-[#18181b] font-semibold block">
               + Add New Media to Library
             </span>
 
@@ -125,9 +125,9 @@ export const MediaLibraryModal: React.FC<MediaLibraryModalProps> = ({
             />
 
             <div className="flex items-center gap-3">
-              <div className="flex-1 border-t border-[#2a2a35]" />
-              <span className="text-[10px] uppercase font-mono text-[#71717a]">Or Add via URL</span>
-              <div className="flex-1 border-t border-[#2a2a35]" />
+              <div className="flex-1 border-t border-[#ded7cc]" />
+              <span className="text-[10px] uppercase font-mono text-[#787268]">Or Add via URL</span>
+              <div className="flex-1 border-t border-[#ded7cc]" />
             </div>
 
             <form onSubmit={handleAddNew} className="space-y-3">
@@ -137,12 +137,12 @@ export const MediaLibraryModal: React.FC<MediaLibraryModalProps> = ({
                   placeholder="Asset title (e.g. Nordic Dusk Facade)"
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
-                  className="sm:col-span-3 bg-[#121216] border border-[#2b2b35] px-3 py-1.5 text-xs text-white rounded focus:outline-none"
+                  className="sm:col-span-3 bg-white border border-[#ded7cc] px-3 py-1.5 text-xs text-[#18181b] rounded focus:outline-none focus:border-[#18181b]"
                 />
                 <select
                   value={newType}
                   onChange={(e) => setNewType(e.target.value as 'image' | 'video')}
-                  className="sm:col-span-2 bg-[#121216] border border-[#2b2b35] px-2 py-1.5 text-xs text-white rounded focus:outline-none"
+                  className="sm:col-span-2 bg-white border border-[#ded7cc] px-2 py-1.5 text-xs text-[#18181b] rounded focus:outline-none focus:border-[#18181b]"
                 >
                   <option value="image">Image (Render)</option>
                   <option value="video">Video (Reel / MP4)</option>
@@ -153,20 +153,20 @@ export const MediaLibraryModal: React.FC<MediaLibraryModalProps> = ({
                   placeholder="Media URL (R2, CDN, local path, or MP4)"
                   value={newUrl}
                   onChange={(e) => setNewUrl(e.target.value)}
-                  className="sm:col-span-4 bg-[#121216] border border-[#2b2b35] px-3 py-1.5 text-xs text-white rounded focus:outline-none font-mono"
+                  className="sm:col-span-4 bg-white border border-[#ded7cc] px-3 py-1.5 text-xs text-[#18181b] rounded focus:outline-none focus:border-[#18181b] font-mono"
                 />
                 <input
                   type="text"
                   placeholder="Video poster URL (optional)"
                   value={newPosterUrl}
                   onChange={(e) => setNewPosterUrl(e.target.value)}
-                  className="sm:col-span-3 bg-[#121216] border border-[#2b2b35] px-3 py-1.5 text-xs text-white rounded focus:outline-none font-mono"
+                  className="sm:col-span-3 bg-white border border-[#ded7cc] px-3 py-1.5 text-xs text-[#18181b] rounded focus:outline-none focus:border-[#18181b] font-mono"
                 />
               </div>
               <div className="flex justify-end">
                 <button
                   type="submit"
-                  className="bg-white text-black px-4 py-1.5 text-xs font-semibold rounded hover:bg-neutral-200"
+                  className="bg-[#18181b] text-white px-4 py-1.5 text-xs font-semibold rounded hover:bg-neutral-800 shadow-sm"
                 >
                   Save URL to Library
                 </button>
@@ -176,34 +176,34 @@ export const MediaLibraryModal: React.FC<MediaLibraryModalProps> = ({
         )}
 
         {/* Toolbar: Filter & Search */}
-        <div className="flex flex-wrap items-center justify-between gap-4 p-4 border-b border-[#22222a] bg-[#141418]">
+        <div className="flex flex-wrap items-center justify-between gap-4 p-4 border-b border-[#ded7cc] bg-[#faf8f5]">
           <div className="flex items-center gap-1.5">
             <button
               onClick={() => setFilterType('all')}
-              className={`px-3 py-1 text-xs rounded transition-colors ${
+              className={`px-3 py-1 text-xs rounded transition-colors font-medium ${
                 filterType === 'all'
-                  ? 'bg-[#2b2b35] text-white font-medium'
-                  : 'text-[#8e8e98] hover:text-white'
+                  ? 'bg-[#18181b] text-white shadow-sm'
+                  : 'bg-white border border-[#ded7cc] text-[#524d45] hover:text-[#18181b]'
               }`}
             >
               All ({items.length})
             </button>
             <button
               onClick={() => setFilterType('image')}
-              className={`px-3 py-1 text-xs rounded transition-colors ${
+              className={`px-3 py-1 text-xs rounded transition-colors font-medium ${
                 filterType === 'image'
-                  ? 'bg-[#2b2b35] text-white font-medium'
-                  : 'text-[#8e8e98] hover:text-white'
+                  ? 'bg-[#18181b] text-white shadow-sm'
+                  : 'bg-white border border-[#ded7cc] text-[#524d45] hover:text-[#18181b]'
               }`}
             >
               Images ({items.filter((i) => i.type === 'image').length})
             </button>
             <button
               onClick={() => setFilterType('video')}
-              className={`px-3 py-1 text-xs rounded transition-colors ${
+              className={`px-3 py-1 text-xs rounded transition-colors font-medium ${
                 filterType === 'video'
-                  ? 'bg-[#2b2b35] text-white font-medium'
-                  : 'text-[#8e8e98] hover:text-white'
+                  ? 'bg-[#18181b] text-white shadow-sm'
+                  : 'bg-white border border-[#ded7cc] text-[#524d45] hover:text-[#18181b]'
               }`}
             >
               Videos ({items.filter((i) => i.type === 'video').length})
@@ -211,21 +211,21 @@ export const MediaLibraryModal: React.FC<MediaLibraryModalProps> = ({
           </div>
 
           <div className="relative">
-            <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-[#65636f]" />
+            <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-[#787268]" />
             <input
               type="text"
               placeholder="Search media..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-[#1a1a22] border border-[#2b2b35] pl-8 pr-3 py-1 text-xs text-white rounded focus:outline-none w-56"
+              className="bg-white border border-[#ded7cc] pl-8 pr-3 py-1 text-xs text-[#18181b] rounded focus:outline-none focus:border-[#18181b] w-56 shadow-sm"
             />
           </div>
         </div>
 
         {/* Media Grid */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-6 bg-white">
           {filteredItems.length === 0 ? (
-            <div className="py-20 text-center text-xs text-[#71717a]">
+            <div className="py-20 text-center text-xs text-[#787268]">
               No media found. Click "+ Add Asset" above.
             </div>
           ) : (
@@ -239,13 +239,13 @@ export const MediaLibraryModal: React.FC<MediaLibraryModalProps> = ({
                       onClose();
                     }
                   }}
-                  className={`group relative overflow-hidden bg-[#18181f] border border-[#252530] rounded-md transition-all ${
+                  className={`group relative overflow-hidden bg-white border border-[#ded7cc] rounded-md transition-all shadow-sm ${
                     selectMode
-                      ? 'cursor-pointer hover:border-white hover:ring-1 hover:ring-white'
-                      : ''
+                      ? 'cursor-pointer hover:border-[#18181b] hover:ring-2 hover:ring-[#18181b]'
+                      : 'hover:border-[#18181b]'
                   }`}
                 >
-                  <div className="aspect-[4/3] w-full overflow-hidden bg-black relative">
+                  <div className="aspect-[4/3] w-full overflow-hidden bg-[#f4f1ea] relative">
                     {item.type === 'video' ? (
                       <video
                         src={item.url}
@@ -264,15 +264,15 @@ export const MediaLibraryModal: React.FC<MediaLibraryModalProps> = ({
                     )}
 
                     {/* Badge */}
-                    <div className="absolute top-2 left-2 bg-black/60 backdrop-blur-sm px-1.5 py-0.5 text-[9px] uppercase tracking-wider text-white rounded flex items-center gap-1">
+                    <div className="absolute top-2 left-2 bg-[#18181b]/80 backdrop-blur-sm px-1.5 py-0.5 text-[9px] uppercase tracking-wider text-white rounded flex items-center gap-1 font-mono">
                       {item.type === 'video' ? (
                         <>
-                          <Film className="h-2.5 w-2.5" />
+                          <Film className="h-2.5 w-2.5 text-amber-300" />
                           <span>Video</span>
                         </>
                       ) : (
                         <>
-                          <ImageIcon className="h-2.5 w-2.5" />
+                          <ImageIcon className="h-2.5 w-2.5 text-emerald-300" />
                           <span>Image</span>
                         </>
                       )}
@@ -281,25 +281,25 @@ export const MediaLibraryModal: React.FC<MediaLibraryModalProps> = ({
                     {/* Delete button */}
                     <button
                       onClick={(e) => handleDelete(item.id, e)}
-                      className="absolute top-2 right-2 p-1 bg-black/70 text-red-400 hover:bg-red-950/80 rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="absolute top-2 right-2 p-1.5 bg-white/90 text-red-600 hover:bg-red-50 rounded shadow opacity-0 group-hover:opacity-100 transition-opacity"
                       title="Delete asset"
                     >
                       <Trash2 className="h-3 w-3" />
                     </button>
                   </div>
 
-                  <div className="p-2.5 space-y-0.5">
-                    <p className="text-xs font-medium text-white truncate">
+                  <div className="p-2.5 space-y-0.5 bg-white">
+                    <p className="text-xs font-semibold text-[#18181b] truncate">
                       {item.title}
                     </p>
-                    <p className="text-[10px] text-[#65636f] truncate font-mono">
+                    <p className="text-[10px] text-[#787268] truncate font-mono">
                       {item.url}
                     </p>
                   </div>
 
                   {selectMode && (
-                    <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 flex items-center justify-center pointer-events-none">
-                      <span className="bg-white text-black text-xs font-semibold px-3 py-1 rounded shadow">
+                    <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 flex items-center justify-center pointer-events-none transition-opacity">
+                      <span className="bg-[#18181b] text-white text-xs font-semibold px-3 py-1 rounded shadow">
                         Insert
                       </span>
                     </div>
