@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Project } from './types';
+import { Project, SiteContent } from './types';
 import { StorageService } from './services/storage';
 import { Header } from './components/public/Header';
 import { Hero } from './components/public/Hero';
@@ -13,10 +13,15 @@ import { Contact } from './components/public/Contact';
 import { Footer } from './components/public/Footer';
 import { SitemapModal } from './components/public/SitemapModal';
 import { AdminDashboard } from './components/admin/AdminDashboard';
+import { LiveEditToolbar } from './components/public/LiveEditToolbar';
 import { ArrowLeft } from 'lucide-react';
 
 export default function App() {
   const [projects, setProjects] = useState<Project[]>(() => StorageService.getProjects());
+  const [siteContent, setSiteContent] = useState<SiteContent>(() => StorageService.getSiteContent());
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [adminInitialTab, setAdminInitialTab] = useState<'projects' | 'site_content'>('projects');
+
   const getResolvedPath = () => {
     if (typeof window === 'undefined') return '/';
     if (
@@ -31,17 +36,36 @@ export default function App() {
 
   const [currentPath, setCurrentPath] = useState<string>(getResolvedPath);
 
+  // Check if admin is currently authenticated
+  const [isAdmin, setIsAdmin] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    return sessionStorage.getItem('elle_kay_admin_auth') === 'true';
+  });
+
   // Sitemap/robots modal state
   const [sitemapModalOpen, setSitemapModalOpen] = useState(false);
   const [sitemapMode, setSitemapMode] = useState<'sitemap' | 'robots'>('sitemap');
 
-  // Sync projects when StorageService fires update events
+  // Sync projects and siteContent when StorageService fires update events
   useEffect(() => {
-    const unsubscribe = StorageService.onProjectsChange((updatedProjects) => {
+    const unsubProjects = StorageService.onProjectsChange((updatedProjects) => {
       setProjects(updatedProjects);
     });
-    return () => unsubscribe();
+    const unsubContent = StorageService.onSiteContentChange((updatedContent) => {
+      setSiteContent(updatedContent);
+    });
+    return () => {
+      unsubProjects();
+      unsubContent();
+    };
   }, []);
+
+  // Update isAdmin when navigation or sessionStorage changes
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setIsAdmin(sessionStorage.getItem('elle_kay_admin_auth') === 'true');
+    }
+  }, [currentPath]);
 
   // Listen to browser popstate and hashchange (back/forward navigation)
   useEffect(() => {
@@ -67,6 +91,11 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleOpenContentEditor = () => {
+    setAdminInitialTab('site_content');
+    navigate('/admin');
+  };
+
   // Dynamic SEO title updater
   useEffect(() => {
     if (currentPath === '/admin') {
@@ -80,16 +109,20 @@ export default function App() {
         document.title = 'Project Not Found · Elle Kay Studio';
       }
     } else {
-      document.title = 'Elle Kay – AI Creative Artist & 3D Designer';
+      document.title = `${siteContent.header.brandName} – ${siteContent.header.brandTitle}`;
     }
-  }, [currentPath, projects]);
+  }, [currentPath, projects, siteContent]);
 
   // Route 1: Admin Dashboard at /admin
   if (currentPath === '/admin') {
     return (
       <AdminDashboard
         projects={projects}
-        onClose={() => navigate('/')}
+        initialTab={adminInitialTab}
+        onClose={() => {
+          setAdminInitialTab('projects');
+          navigate('/');
+        }}
         onNavigateToProject={(slug) => navigate(`/project/${slug}`)}
       />
     );
@@ -124,6 +157,7 @@ export default function App() {
         <Header
           currentPath={currentPath}
           onNavigate={navigate}
+          content={siteContent.header}
         />
         <ProjectDetail
           project={project}
@@ -141,6 +175,7 @@ export default function App() {
             setSitemapModalOpen(true);
           }}
           onNavigateToAdmin={() => navigate('/admin')}
+          content={siteContent.footer}
         />
         <SitemapModal
           projects={projects}
@@ -160,11 +195,15 @@ export default function App() {
       <Header
         currentPath={currentPath}
         onNavigate={navigate}
+        content={siteContent.header}
       />
 
       <main>
         {/* Full-bleed Luxury Hero */}
         <Hero
+          content={siteContent.hero}
+          isEditMode={isEditMode}
+          onEditSection={handleOpenContentEditor}
           onExploreClick={() => {
             const el = document.getElementById('work');
             el?.scrollIntoView({ behavior: 'smooth' });
@@ -178,20 +217,49 @@ export default function App() {
         />
 
         {/* Generative AI Practice & Prompt Workflows */}
-        <AICreative />
+        <AICreative
+          content={siteContent.aiCreative}
+          isEditMode={isEditMode}
+          onEditSection={handleOpenContentEditor}
+        />
 
         {/* Studio Services & Scope */}
-        <Services />
+        <Services
+          content={siteContent.services}
+          isEditMode={isEditMode}
+          onEditSection={handleOpenContentEditor}
+        />
 
         {/* Studio Biography & Philosophy */}
-        <About />
+        <About
+          content={siteContent.about}
+          isEditMode={isEditMode}
+          onEditSection={handleOpenContentEditor}
+        />
 
         {/* Global Collaborations */}
-        <Clients />
+        <Clients
+          content={siteContent.clients}
+          isEditMode={isEditMode}
+          onEditSection={handleOpenContentEditor}
+        />
 
         {/* Direct Inquiries & WhatsApp CTA */}
-        <Contact />
+        <Contact
+          content={siteContent.contact}
+          isEditMode={isEditMode}
+          onEditSection={handleOpenContentEditor}
+        />
       </main>
+
+      {/* Floating Live Edit & Media Upload Toolbar */}
+      <LiveEditToolbar
+        isAdmin={isAdmin}
+        isEditMode={isEditMode}
+        onToggleEditMode={() => setIsEditMode(!isEditMode)}
+        onNavigateToAdmin={() => navigate('/admin')}
+        onOpenContentEditor={handleOpenContentEditor}
+      />
 
       {/* Editorial Footer */}
       <Footer
@@ -204,6 +272,7 @@ export default function App() {
           setSitemapModalOpen(true);
         }}
         onNavigateToAdmin={() => navigate('/admin')}
+        content={siteContent.footer}
       />
 
       {/* SEO Sitemap & Robots Modal */}
@@ -216,3 +285,4 @@ export default function App() {
     </div>
   );
 }
+

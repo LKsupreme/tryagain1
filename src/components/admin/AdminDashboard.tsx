@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import {
   Plus,
   Edit2,
+  Edit3,
   Copy,
   Trash2,
   Eye,
@@ -27,19 +28,22 @@ import { ProjectFormModal } from './ProjectFormModal';
 import { CloudflareSettingsModal } from './CloudflareSettingsModal';
 import { MediaLibraryModal } from './MediaLibraryModal';
 import { DomainConnectModal } from './DomainConnectModal';
+import { SiteContentEditor } from './SiteContentEditor';
 
 interface AdminDashboardProps {
   projects: Project[];
   onClose: () => void;
   onNavigateToProject: (slug: string) => void;
+  initialTab?: 'projects' | 'site_content';
 }
 
-type TabType = 'all' | 'published' | 'drafts' | 'featured';
+type TabType = 'all' | 'published' | 'drafts' | 'featured' | 'site_content';
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   projects,
   onClose,
   onNavigateToProject,
+  initialTab,
 }) => {
   // Authentication gate
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
@@ -50,7 +54,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [authError, setAuthError] = useState(false);
 
   // Active filter tab
-  const [activeTab, setActiveTab] = useState<TabType>('all');
+  const [activeTab, setActiveTab] = useState<TabType>(
+    initialTab === 'site_content' ? 'site_content' : 'all'
+  );
 
   // Modals state
   const [formModalOpen, setFormModalOpen] = useState(false);
@@ -287,6 +293,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <span>R2 Storage</span>
             </button>
 
+            {/* Site Content & Copy Editor Button */}
+            <button
+              onClick={() => setActiveTab(activeTab === 'site_content' ? 'all' : 'site_content')}
+              className={`flex items-center gap-1.5 border px-3 py-1.5 text-xs rounded transition-colors ${
+                activeTab === 'site_content'
+                  ? 'bg-amber-500 text-black border-amber-400 font-semibold'
+                  : 'border-amber-800/60 bg-amber-950/40 text-amber-300 hover:text-white hover:bg-amber-900/40'
+              }`}
+              title="Edit all text and upload section media across the entire website"
+            >
+              <Edit3 className="h-3.5 w-3.5" />
+              <span>Site Text & Copy</span>
+            </button>
+
             {/* Connect Wix Domain Button */}
             <button
               onClick={() => setDomainModalOpen(true)}
@@ -355,6 +375,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             >
               FEATURED ({featuredCount})
             </button>
+
+            <button
+              onClick={() => setActiveTab('site_content')}
+              className={`px-3 py-1.5 text-xs font-medium rounded transition-colors flex items-center gap-1.5 ${
+                activeTab === 'site_content'
+                  ? 'bg-amber-500 text-black font-semibold'
+                  : 'bg-[#181822] text-amber-300 hover:text-white border border-amber-900/50'
+              }`}
+            >
+              <Edit3 className="h-3 w-3" />
+              <span>EDIT SITE TEXT & COPY</span>
+            </button>
           </div>
 
           <div className="flex items-center gap-2 text-xs">
@@ -393,8 +425,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           </div>
         </div>
 
-        {/* Project List */}
-        {filteredProjects.length === 0 ? (
+        {/* Site Content CMS or Projects List */}
+        {activeTab === 'site_content' ? (
+          <div className="border border-[#24242d] rounded-lg overflow-hidden bg-[#101015]">
+            <SiteContentEditor onNavigateToPreview={onClose} />
+          </div>
+        ) : filteredProjects.length === 0 ? (
           <div className="py-20 text-center border border-dashed border-[#2b2b35] rounded-lg">
             <p className="text-sm text-[#71717a]">No projects found in this tab.</p>
           </div>

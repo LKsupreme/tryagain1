@@ -1,20 +1,27 @@
 import React from 'react';
 import { ArrowUp } from 'lucide-react';
+import { FooterContent } from '../../types';
 
 interface FooterProps {
   onOpenSitemap: () => void;
   onOpenRobots: () => void;
   onNavigateToAdmin?: () => void;
+  content?: FooterContent;
 }
 
 export const Footer: React.FC<FooterProps> = ({
   onOpenSitemap,
   onOpenRobots,
   onNavigateToAdmin,
+  content,
 }) => {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  const brandTitle = content?.brandTitle || 'ELLE KAY';
+  const tagline = content?.tagline || 'AI Creative Artist · 3D Designer · Visual Creative';
+  const copyright = content?.copyright || `© ${new Date().getFullYear()} Elle Kay. All rights reserved.`;
 
   return (
     <footer className="border-t border-[#ded7cc] bg-[#eee9df] py-20 px-6 lg:px-12 text-[#635e56]">
@@ -22,10 +29,10 @@ export const Footer: React.FC<FooterProps> = ({
         <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-8 pb-12 border-b border-[#ded7cc]">
           <div className="space-y-3">
             <span className="font-editorial text-3xl font-light tracking-[0.16em] text-[#18181b]">
-              ELLE KAY
+              {brandTitle}
             </span>
             <p className="text-xs text-[#787268] max-w-sm font-light">
-              AI Creative Artist · 3D Designer · Visual Creative
+              {tagline}
             </p>
           </div>
 
@@ -57,7 +64,7 @@ export const Footer: React.FC<FooterProps> = ({
 
         {/* Quiet copyright & metadata */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-[11px] text-[#787268]">
-          <p>© {new Date().getFullYear()} Elle Kay. All rights reserved.</p>
+          <p>{copyright}</p>
 
           <div className="flex items-center gap-4">
             <button onClick={onOpenSitemap} className="hover:text-[#18181b] transition-colors">

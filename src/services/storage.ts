@@ -1,11 +1,14 @@
 import { INITIAL_PROJECTS, INITIAL_MEDIA_LIBRARY } from '../data/initialProjects';
-import { CloudflareConfig, Project, MediaLibraryItem } from '../types';
+import { INITIAL_SITE_CONTENT } from '../data/initialSiteContent';
+import { CloudflareConfig, Project, MediaLibraryItem, SiteContent } from '../types';
 
 const STORAGE_KEY = 'elle_kay_portfolio_projects_v4';
 const MEDIA_LIB_KEY = 'elle_kay_media_library_v1';
 const CF_CONFIG_KEY = 'elle_kay_cloudflare_config_v1';
+const SITE_CONTENT_KEY = 'elle_kay_site_content_v1';
 const UPDATE_EVENT_NAME = 'elle_kay_projects_updated';
 const MEDIA_UPDATE_EVENT = 'elle_kay_media_updated';
+const SITE_CONTENT_UPDATE_EVENT = 'elle_kay_site_content_updated';
 
 const DEFAULT_CF_CONFIG: CloudflareConfig = {
   accountId: '',
@@ -276,6 +279,90 @@ export const StorageService = {
   saveCustomDomain(domain: string): void {
     const cleaned = domain.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/$/, '');
     localStorage.setItem('elle_kay_custom_domain', cleaned);
+  },
+
+  // Site Content Management (Universal Text & Section Media)
+  getSiteContent(): SiteContent {
+    try {
+      const stored = localStorage.getItem(SITE_CONTENT_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        // Deep merge with initial content so newly added fields have defaults
+        return {
+          hero: { ...INITIAL_SITE_CONTENT.hero, ...(parsed.hero || {}) },
+          about: {
+            ...INITIAL_SITE_CONTENT.about,
+            ...(parsed.about || {}),
+            experiences: parsed.about?.experiences || INITIAL_SITE_CONTENT.about.experiences,
+            software: parsed.about?.software || INITIAL_SITE_CONTENT.about.software,
+          },
+          services: {
+            ...INITIAL_SITE_CONTENT.services,
+            ...(parsed.services || {}),
+            items: parsed.services?.items || INITIAL_SITE_CONTENT.services.items,
+          },
+          aiCreative: {
+            ...INITIAL_SITE_CONTENT.aiCreative,
+            ...(parsed.aiCreative || {}),
+            studies: parsed.aiCreative?.studies || INITIAL_SITE_CONTENT.aiCreative.studies,
+          },
+          clients: {
+            ...INITIAL_SITE_CONTENT.clients,
+            ...(parsed.clients || {}),
+            regions: parsed.clients?.regions || INITIAL_SITE_CONTENT.clients.regions,
+          },
+          contact: {
+            ...INITIAL_SITE_CONTENT.contact,
+            ...(parsed.contact || {}),
+            subheadingTags: parsed.contact?.subheadingTags || INITIAL_SITE_CONTENT.contact.subheadingTags,
+          },
+          header: { ...INITIAL_SITE_CONTENT.header, ...(parsed.header || {}) },
+          footer: { ...INITIAL_SITE_CONTENT.footer, ...(parsed.footer || {}) },
+        };
+      }
+    } catch (e) {
+      console.error('Failed to parse site content from localStorage:', e);
+    }
+    return INITIAL_SITE_CONTENT;
+  },
+
+  saveSiteContent(content: SiteContent): void {
+    try {
+      localStorage.setItem(SITE_CONTENT_KEY, JSON.stringify(content));
+      window.dispatchEvent(new CustomEvent(SITE_CONTENT_UPDATE_EVENT, { detail: content }));
+    } catch (e) {
+      console.error('Failed to save site content to localStorage:', e);
+    }
+  },
+
+  updateSiteContentSection<K extends keyof SiteContent>(
+    section: K,
+    data: Partial<SiteContent[K]>
+  ): SiteContent {
+    const current = StorageService.getSiteContent();
+    const updated: SiteContent = {
+      ...current,
+      [section]: {
+        ...current[section],
+        ...data,
+      },
+    };
+    StorageService.saveSiteContent(updated);
+    return updated;
+  },
+
+  resetSiteContentToDefaults(): SiteContent {
+    StorageService.saveSiteContent(INITIAL_SITE_CONTENT);
+    return INITIAL_SITE_CONTENT;
+  },
+
+  onSiteContentChange(callback: (content: SiteContent) => void): () => void {
+    const handler = (e: Event) => {
+      const customEvent = e as CustomEvent<SiteContent>;
+      callback(customEvent.detail || StorageService.getSiteContent());
+    };
+    window.addEventListener(SITE_CONTENT_UPDATE_EVENT, handler);
+    return () => window.removeEventListener(SITE_CONTENT_UPDATE_EVENT, handler);
   },
 
   onProjectsChange(callback: (projects: Project[]) => void): () => void {

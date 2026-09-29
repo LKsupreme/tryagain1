@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { Project, ProjectCategory, MediaItem, MediaLibraryItem } from '../../types';
 import { MediaLibraryModal } from './MediaLibraryModal';
+import { FileUploadDropzone } from './FileUploadDropzone';
 
 interface ProjectFormModalProps {
   isOpen: boolean;
@@ -293,8 +294,21 @@ export const ProjectFormModal: React.FC<ProjectFormModalProps> = ({
                     placeholder="Cover URL (Image or MP4)"
                     value={coverUrl}
                     onChange={(e) => setCoverUrl(e.target.value)}
-                    className="sm:col-span-9 bg-[#1c1c24] border border-[#2e2e3c] px-3 py-2 text-xs text-white rounded focus:outline-none font-mono"
+                    className="sm:col-span-6 bg-[#1c1c24] border border-[#2e2e3c] px-3 py-2 text-xs text-white rounded focus:outline-none font-mono"
                   />
+
+                  <div className="sm:col-span-3">
+                    <FileUploadDropzone
+                      compact
+                      accept={coverType}
+                      label={`Upload ${coverType === 'video' ? 'Video' : 'Image'}`}
+                      category="Project Covers"
+                      onUploadSuccess={(item) => {
+                        setCoverUrl(item.url);
+                        setCoverType(item.type);
+                      }}
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -324,6 +338,25 @@ export const ProjectFormModal: React.FC<ProjectFormModalProps> = ({
                 </div>
 
                 {/* Media items sequence list */}
+                <FileUploadDropzone
+                  accept="both"
+                  label="+ Drop Image or Video here to add directly to project sequence"
+                  category="Project Media"
+                  onUploadSuccess={(uploaded) => {
+                    setMediaList((prev) => [
+                      ...prev,
+                      {
+                        id: `m-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+                        type: uploaded.type,
+                        url: uploaded.url,
+                        posterUrl: uploaded.posterUrl,
+                        aspect: '16:9',
+                        caption: uploaded.title,
+                      },
+                    ]);
+                  }}
+                />
+
                 <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
                   {mediaList.map((item, idx) => (
                     <div

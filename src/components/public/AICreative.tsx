@@ -1,46 +1,12 @@
 import React, { useState } from 'react';
-import { Sparkles, ArrowRight, Play, X } from 'lucide-react';
+import { Sparkles, ArrowRight, Play, X, Edit3 } from 'lucide-react';
+import { AICreativeContent } from '../../types';
 
-const AI_STUDIES = [
-  {
-    id: 'ai-1',
-    title: 'Monolithic Travertine In Void',
-    category: 'Spatial Concept',
-    prompt: 'Brutalist Roman travertine pavilion suspended in mist, soft morning raking light, natural grain',
-    mediaUrl: '/src/assets/images/project_monolith_interior_1790605581695.jpg',
-    type: 'image',
-    aspect: 'aspect-[4/3]',
-  },
-  {
-    id: 'ai-2',
-    title: 'Cinematic Architecture Facade',
-    category: 'AI Video / Motion',
-    prompt: 'Fluid daylight progression over modern architectural lattice, 4K camera glide',
-    mediaUrl: 'https://assets.mixkit.co/videos/preview/mixkit-modern-architectural-building-facade-42777-large.mp4',
-    posterUrl: '/src/assets/images/hero_arch_viz_1790605520563.jpg',
-    type: 'video',
-    aspect: 'aspect-[16/9]',
-  },
-  {
-    id: 'ai-3',
-    title: 'Sub-Surface Light & Coastal Timber',
-    category: 'Material Synthesis',
-    prompt: 'Charred Japanese cedar screens catching golden reflection from shallow water basin',
-    mediaUrl: '/src/assets/images/project_kyoto_pavilion_1790605566767.jpg',
-    type: 'image',
-    aspect: 'aspect-[16/10]',
-  },
-  {
-    id: 'ai-4',
-    title: 'Atmospheric Horizon Walkthrough',
-    category: 'Generative Sequence',
-    prompt: 'Drone sweep across cantilevered residential mirage at dusk, 35mm lens blur',
-    mediaUrl: 'https://assets.mixkit.co/videos/preview/mixkit-luxury-residential-villa-with-pool-at-sunset-42778-large.mp4',
-    posterUrl: '/src/assets/images/project_solis_residence_1790605551876.jpg',
-    type: 'video',
-    aspect: 'aspect-[16/9]',
-  },
-];
+interface AICreativeProps {
+  content: AICreativeContent;
+  isEditMode?: boolean;
+  onEditSection?: () => void;
+}
 
 const WORKFLOW_STEPS = [
   { step: '01', name: 'Brief' },
@@ -53,20 +19,33 @@ const WORKFLOW_STEPS = [
   { step: '08', name: 'Final' },
 ];
 
-export const AICreative: React.FC = () => {
-  const [selectedPrompt, setSelectedPrompt] = useState<string | null>(null);
-
+export const AICreative: React.FC<AICreativeProps> = ({
+  content,
+  isEditMode,
+  onEditSection,
+}) => {
   return (
-    <section id="ai" className="relative w-full bg-[#f4f1ea] py-32 px-6 lg:px-12 border-t border-[#e5dfd5]">
+    <section id="ai" className={`relative w-full bg-[#f4f1ea] py-32 px-6 lg:px-12 border-t border-[#e5dfd5] ${isEditMode ? 'ring-2 ring-amber-400/60 ring-inset' : ''}`}>
+      {/* Edit Mode Badge */}
+      {isEditMode && (
+        <button
+          onClick={onEditSection}
+          className="absolute top-8 right-6 lg:right-12 z-30 flex items-center gap-1.5 bg-amber-500 hover:bg-amber-400 text-black text-xs font-semibold px-3 py-1.5 rounded-full shadow-lg transition-transform hover:scale-105"
+        >
+          <Edit3 className="h-3.5 w-3.5" />
+          <span>Edit AI Studies & Prompts</span>
+        </button>
+      )}
+
       <div className="mx-auto max-w-7xl space-y-20">
         {/* Section Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 border-b border-[#ded7cc] pb-8">
           <div className="space-y-2">
             <span className="text-[11px] uppercase tracking-[0.25em] text-[#877158] font-medium">
-              Generative Workflows · 2–3 Years Practice
+              {content.badge}
             </span>
             <h2 className="font-editorial text-4xl sm:text-6xl font-light text-[#1a1a1d] tracking-tight">
-              AI Creative
+              {content.heading}
             </h2>
           </div>
 
@@ -94,9 +73,9 @@ export const AICreative: React.FC = () => {
 
         {/* Visual Experiments Archive (90% Visual) */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 sm:gap-16">
-          {AI_STUDIES.map((study) => (
+          {content.studies?.map((study) => (
             <div key={study.id} className="space-y-3 group">
-              <div className={`relative w-full ${study.aspect} overflow-hidden bg-[#e8e3d8]`}>
+              <div className={`relative w-full ${study.aspect || 'aspect-[16/9]'} overflow-hidden bg-[#e8e3d8]`}>
                 {study.type === 'video' ? (
                   <video
                     autoPlay
@@ -120,6 +99,16 @@ export const AICreative: React.FC = () => {
                 <div className="absolute top-3 right-3 bg-white/80 backdrop-blur-sm px-2 py-0.5 text-[9px] uppercase tracking-wider text-[#1a1a1d] rounded">
                   {study.category}
                 </div>
+
+                {isEditMode && (
+                  <button
+                    onClick={onEditSection}
+                    className="absolute inset-0 bg-black/40 text-white flex items-center justify-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity text-xs font-medium"
+                  >
+                    <Edit3 className="h-4 w-4 text-amber-300" />
+                    <span>Change Study Visual</span>
+                  </button>
+                )}
               </div>
 
               <div className="flex items-baseline justify-between pt-1">

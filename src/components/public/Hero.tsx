@@ -1,11 +1,20 @@
 import React, { useRef, useState } from 'react';
-import { ArrowDown, Volume2, VolumeX } from 'lucide-react';
+import { ArrowDown, Volume2, VolumeX, Edit3 } from 'lucide-react';
+import { HeroContent } from '../../types';
 
 interface HeroProps {
   onExploreClick: () => void;
+  content: HeroContent;
+  isEditMode?: boolean;
+  onEditSection?: () => void;
 }
 
-export const Hero: React.FC<HeroProps> = ({ onExploreClick }) => {
+export const Hero: React.FC<HeroProps> = ({
+  onExploreClick,
+  content,
+  isEditMode,
+  onEditSection,
+}) => {
   const [isMuted, setIsMuted] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -17,7 +26,18 @@ export const Hero: React.FC<HeroProps> = ({ onExploreClick }) => {
   };
 
   return (
-    <section className="relative min-h-[92vh] w-full overflow-hidden bg-[#ede8e1] flex items-end">
+    <section className={`relative min-h-[92vh] w-full overflow-hidden bg-[#ede8e1] flex items-end ${isEditMode ? 'ring-2 ring-amber-400/60 ring-inset' : ''}`}>
+      {/* Edit Mode Badge */}
+      {isEditMode && (
+        <button
+          onClick={onEditSection}
+          className="absolute top-24 left-6 lg:left-12 z-30 flex items-center gap-1.5 bg-amber-500 hover:bg-amber-400 text-black text-xs font-semibold px-3 py-1.5 rounded-full shadow-lg transition-transform hover:scale-105"
+        >
+          <Edit3 className="h-3.5 w-3.5" />
+          <span>Edit Hero Headline & Video</span>
+        </button>
+      )}
+
       {/* Full-screen cinematic video / render */}
       <div className="absolute inset-0 z-0">
         <video
@@ -26,11 +46,11 @@ export const Hero: React.FC<HeroProps> = ({ onExploreClick }) => {
           muted={isMuted}
           loop
           playsInline
-          poster="/src/assets/images/hero_arch_viz_1790605520563.jpg"
+          poster={content.posterUrl || "/src/assets/images/hero_arch_viz_1790605520563.jpg"}
           className="h-full w-full object-cover object-center"
         >
           <source
-            src="https://assets.mixkit.co/videos/preview/mixkit-modern-architectural-building-facade-42777-large.mp4"
+            src={content.videoUrl || "https://assets.mixkit.co/videos/preview/mixkit-modern-architectural-building-facade-42777-large.mp4"}
             type="video/mp4"
           />
         </video>
@@ -51,11 +71,11 @@ export const Hero: React.FC<HeroProps> = ({ onExploreClick }) => {
       <div className="relative z-10 mx-auto w-full max-w-7xl px-6 pb-16 pt-32 lg:px-12">
         <div className="space-y-4 max-w-2xl">
           <p className="text-[11px] tracking-[0.28em] uppercase text-[#1a1a1d] font-semibold">
-            AI Creative Artist · 3D Designer
+            {content.tagline}
           </p>
 
           <h1 className="font-editorial text-4xl sm:text-6xl lg:text-7xl font-light text-[#1a1a1d] leading-[1.05] tracking-tight">
-            Visualizing ideas across 3D, design and AI.
+            {content.heading}
           </h1>
         </div>
 
@@ -65,15 +85,18 @@ export const Hero: React.FC<HeroProps> = ({ onExploreClick }) => {
             onClick={onExploreClick}
             className="group flex items-center gap-2 text-[#1a1a1d] hover:text-[#877158] transition-colors"
           >
-            <span className="uppercase tracking-[0.22em] text-[11px] font-medium">View Work</span>
+            <span className="uppercase tracking-[0.22em] text-[11px] font-medium">
+              {content.viewWorkText || 'View Work'}
+            </span>
             <ArrowDown className="h-3.5 w-3.5 transition-transform group-hover:translate-y-0.5" />
           </button>
 
           <span className="text-[11px] tracking-[0.2em] uppercase opacity-75 hidden sm:inline">
-            7+ Years Experience · Generative AI Workflows
+            {content.badge}
           </span>
         </div>
       </div>
     </section>
   );
 };
+

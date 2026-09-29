@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { X, Plus, Search, Trash2, Check, Image as ImageIcon, Film, Filter } from 'lucide-react';
+import { X, Plus, Search, Trash2, Check, Image as ImageIcon, Film, Filter, UploadCloud } from 'lucide-react';
 import { MediaLibraryItem } from '../../types';
 import { StorageService } from '../../services/storage';
+import { FileUploadDropzone } from './FileUploadDropzone';
 
 interface MediaLibraryModalProps {
   isOpen: boolean;
@@ -108,54 +109,70 @@ export const MediaLibraryModal: React.FC<MediaLibraryModalProps> = ({
 
         {/* Add New Asset Drawer */}
         {isAdding && (
-          <form
-            onSubmit={handleAddNew}
-            className="border-b border-[#22222a] bg-[#1a1a22] p-5 space-y-3"
-          >
+          <div className="border-b border-[#22222a] bg-[#1a1a22] p-5 space-y-4">
             <span className="text-xs uppercase tracking-wider text-white font-medium block">
               + Add New Media to Library
             </span>
-            <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
-              <input
-                type="text"
-                placeholder="Asset title (e.g. Nordic Dusk Facade)"
-                value={newTitle}
-                onChange={(e) => setNewTitle(e.target.value)}
-                className="sm:col-span-3 bg-[#121216] border border-[#2b2b35] px-3 py-1.5 text-xs text-white rounded focus:outline-none"
-              />
-              <select
-                value={newType}
-                onChange={(e) => setNewType(e.target.value as 'image' | 'video')}
-                className="sm:col-span-2 bg-[#121216] border border-[#2b2b35] px-2 py-1.5 text-xs text-white rounded focus:outline-none"
-              >
-                <option value="image">Image (Render)</option>
-                <option value="video">Video (Reel / MP4)</option>
-              </select>
-              <input
-                type="text"
-                required
-                placeholder="Media URL (R2, CDN, local path, or MP4)"
-                value={newUrl}
-                onChange={(e) => setNewUrl(e.target.value)}
-                className="sm:col-span-4 bg-[#121216] border border-[#2b2b35] px-3 py-1.5 text-xs text-white rounded focus:outline-none font-mono"
-              />
-              <input
-                type="text"
-                placeholder="Video poster URL (optional)"
-                value={newPosterUrl}
-                onChange={(e) => setNewPosterUrl(e.target.value)}
-                className="sm:col-span-3 bg-[#121216] border border-[#2b2b35] px-3 py-1.5 text-xs text-white rounded focus:outline-none font-mono"
-              />
+
+            {/* Direct File Dropzone */}
+            <FileUploadDropzone
+              accept="both"
+              label="Drop image or video here to instantly upload and add to library"
+              category="Media Library"
+              onUploadSuccess={(item) => {
+                setIsAdding(false);
+              }}
+            />
+
+            <div className="flex items-center gap-3">
+              <div className="flex-1 border-t border-[#2a2a35]" />
+              <span className="text-[10px] uppercase font-mono text-[#71717a]">Or Add via URL</span>
+              <div className="flex-1 border-t border-[#2a2a35]" />
             </div>
-            <div className="flex justify-end">
-              <button
-                type="submit"
-                className="bg-white text-black px-4 py-1.5 text-xs font-semibold rounded hover:bg-neutral-200"
-              >
-                Save to Library
-              </button>
-            </div>
-          </form>
+
+            <form onSubmit={handleAddNew} className="space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
+                <input
+                  type="text"
+                  placeholder="Asset title (e.g. Nordic Dusk Facade)"
+                  value={newTitle}
+                  onChange={(e) => setNewTitle(e.target.value)}
+                  className="sm:col-span-3 bg-[#121216] border border-[#2b2b35] px-3 py-1.5 text-xs text-white rounded focus:outline-none"
+                />
+                <select
+                  value={newType}
+                  onChange={(e) => setNewType(e.target.value as 'image' | 'video')}
+                  className="sm:col-span-2 bg-[#121216] border border-[#2b2b35] px-2 py-1.5 text-xs text-white rounded focus:outline-none"
+                >
+                  <option value="image">Image (Render)</option>
+                  <option value="video">Video (Reel / MP4)</option>
+                </select>
+                <input
+                  type="text"
+                  required
+                  placeholder="Media URL (R2, CDN, local path, or MP4)"
+                  value={newUrl}
+                  onChange={(e) => setNewUrl(e.target.value)}
+                  className="sm:col-span-4 bg-[#121216] border border-[#2b2b35] px-3 py-1.5 text-xs text-white rounded focus:outline-none font-mono"
+                />
+                <input
+                  type="text"
+                  placeholder="Video poster URL (optional)"
+                  value={newPosterUrl}
+                  onChange={(e) => setNewPosterUrl(e.target.value)}
+                  className="sm:col-span-3 bg-[#121216] border border-[#2b2b35] px-3 py-1.5 text-xs text-white rounded focus:outline-none font-mono"
+                />
+              </div>
+              <div className="flex justify-end">
+                <button
+                  type="submit"
+                  className="bg-white text-black px-4 py-1.5 text-xs font-semibold rounded hover:bg-neutral-200"
+                >
+                  Save URL to Library
+                </button>
+              </div>
+            </form>
+          </div>
         )}
 
         {/* Toolbar: Filter & Search */}

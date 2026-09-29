@@ -1,13 +1,19 @@
 import React, { useState } from 'react';
 import { Menu, X } from 'lucide-react';
+import { HeaderContent } from '../../types';
 
 interface HeaderProps {
   currentPath: string;
   onNavigate: (path: string) => void;
+  content?: HeaderContent;
 }
 
-export const Header: React.FC<HeaderProps> = ({ currentPath, onNavigate }) => {
+export const Header: React.FC<HeaderProps> = ({ currentPath, onNavigate, content }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const brandName = content?.brandName || 'ELLE KAY';
+  const brandTitle = content?.brandTitle || 'AI Creative · 3D Designer';
+  const inquireText = content?.inquireButtonText || "Let's Create";
 
   const handleNavClick = (target: string, e: React.MouseEvent) => {
     e.preventDefault();
@@ -39,10 +45,10 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, onNavigate }) => {
           className="group flex flex-col items-start"
         >
           <span className="font-editorial text-2xl font-normal tracking-[0.16em] text-[#18181b] group-hover:text-[#877158] transition-colors">
-            ELLE KAY
+            {brandName}
           </span>
           <span className="text-[10px] uppercase tracking-[0.24em] text-[#787268] font-medium">
-            AI Creative · 3D Designer
+            {brandTitle}
           </span>
         </a>
 
