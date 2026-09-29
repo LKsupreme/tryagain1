@@ -15,7 +15,7 @@ import {
   Cloud,
   ArrowLeft,
   Lock,
-  Unlock,
+  EyeOff,
   FolderOpen,
   Film,
   Image as ImageIcon,
@@ -46,6 +46,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     return sessionStorage.getItem('elle_kay_admin_auth') === 'true';
   });
   const [passcode, setPasscode] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [authError, setAuthError] = useState(false);
 
   // Active filter tab
@@ -68,19 +69,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (passcode.trim().toLowerCase() === 'elle2026' || passcode.trim() === 'admin') {
+    if (passcode.trim() === 'redrazai@L12') {
       setIsAuthenticated(true);
       sessionStorage.setItem('elle_kay_admin_auth', 'true');
       setAuthError(false);
     } else {
       setAuthError(true);
     }
-  };
-
-  const handleQuickUnlock = () => {
-    setIsAuthenticated(true);
-    sessionStorage.setItem('elle_kay_admin_auth', 'true');
-    setAuthError(false);
   };
 
   const handleCreateNew = () => {
@@ -194,33 +189,36 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <label className="text-xs uppercase tracking-wider text-[#9b9ba4] block">
                 Passcode
               </label>
-              <input
-                type="password"
-                value={passcode}
-                onChange={(e) => {
-                  setPasscode(e.target.value);
-                  setAuthError(false);
-                }}
-                placeholder="Enter passcode (hint: elle2026)"
-                className="w-full bg-[#1c1c22] border border-[#2e2e38] px-3.5 py-2.5 text-sm text-white focus:border-white focus:outline-none rounded"
-              />
+              <div className="relative flex items-center">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={passcode}
+                  onChange={(e) => {
+                    setPasscode(e.target.value);
+                    setAuthError(false);
+                  }}
+                  placeholder="Enter passcode"
+                  className="w-full bg-[#1c1c22] border border-[#2e2e38] pl-3.5 pr-10 py-2.5 text-sm text-white focus:border-white focus:outline-none rounded font-mono"
+                  autoComplete="current-password"
+                  autoFocus
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 p-1 text-[#71717a] hover:text-white transition-colors"
+                  aria-label={showPassword ? 'Hide passcode' : 'Show passcode'}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
               {authError && <p className="text-xs text-red-400">Incorrect passcode.</p>}
             </div>
 
             <button
               type="submit"
-              className="w-full bg-white text-black font-medium text-xs uppercase tracking-wider py-2.5 hover:bg-neutral-200 transition-colors rounded"
+              className="w-full bg-white text-black font-medium text-xs uppercase tracking-wider py-2.5 hover:bg-neutral-200 transition-colors rounded shadow"
             >
               Unlock Dashboard
-            </button>
-
-            <button
-              type="button"
-              onClick={handleQuickUnlock}
-              className="w-full border border-[#2e2e38] bg-[#18181e] text-[#9b9ba4] text-xs py-2 hover:text-white transition-colors flex items-center justify-center gap-1.5 rounded"
-            >
-              <Unlock className="h-3.5 w-3.5" />
-              <span>Quick Unlock (Owner)</span>
             </button>
           </form>
         </div>
@@ -245,7 +243,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       {/* Top Practical Header */}
       <header className="sticky top-0 z-40 border-b border-[#22222a] bg-[#121216]/95 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6 lg:px-12">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <button
               onClick={onClose}
               className="flex items-center gap-2 text-xs text-[#a1a1aa] hover:text-white border border-[#2b2b35] px-3 py-1.5 rounded bg-[#18181f]"
@@ -253,7 +251,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <ArrowLeft className="h-3.5 w-3.5" />
               <span>View Portfolio</span>
             </button>
-            <span className="font-semibold text-sm text-white">Elle Kay CMS</span>
+            <button
+              onClick={() => {
+                sessionStorage.removeItem('elle_kay_admin_auth');
+                setIsAuthenticated(false);
+                setPasscode('');
+              }}
+              className="flex items-center gap-1.5 text-xs text-[#a1a1aa] hover:text-rose-300 border border-[#2b2b35] px-2.5 py-1.5 rounded bg-[#18181f] transition-colors"
+              title="Lock CMS / Log out"
+            >
+              <Lock className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Lock</span>
+            </button>
+            <span className="font-semibold text-sm text-white hidden md:inline border-l border-[#272730] pl-3">
+              Elle Kay CMS
+            </span>
           </div>
 
           <div className="flex items-center gap-3">
