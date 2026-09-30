@@ -8,6 +8,22 @@ export const INITIAL_SITE_CONTENT: SiteContent = {
     viewWorkText: 'View Work',
     videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-modern-architectural-building-facade-42777-large.mp4',
     posterUrl: '/src/assets/images/hero_arch_viz_1790605520563.jpg',
+    visibility: true,
+    isPlaceholder: true,
+    soundEnabled: false,
+    autoplay: true,
+  },
+  showreel: {
+    heading: 'Cinematic Showreel',
+    badge: 'Spatial Flow · Dynamic Light · Animation',
+    description: 'A curated compilation of architectural walkthroughs, interior camera sequences, and AI visual developments spanning international commissions.',
+    videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-modern-architectural-building-facade-42777-large.mp4',
+    posterUrl: '/src/assets/images/hero_arch_viz_1790605520563.jpg',
+    isPlaceholder: true,
+    visibility: true,
+    autoplay: true,
+    loop: true,
+    muted: true,
   },
   about: {
     portraitUrl: '/src/assets/images/elle_kay_portrait_1790605599434.jpg',
@@ -47,10 +63,12 @@ export const INITIAL_SITE_CONTENT: SiteContent = {
       'Photoshop',
       'Premiere Pro',
     ],
+    visibility: true,
   },
   services: {
     heading: 'Services',
     badge: 'Scope & Capabilities',
+    visibility: true,
     items: [
       {
         id: 'srv-1',
@@ -79,6 +97,7 @@ export const INITIAL_SITE_CONTENT: SiteContent = {
         mediaUrl: 'https://assets.mixkit.co/videos/preview/mixkit-modern-architectural-building-facade-42777-large.mp4',
         posterUrl: '/src/assets/images/project_nordic_sanctuary_1790605538249.jpg',
         type: 'video',
+        isPlaceholder: true,
       },
       {
         id: 'srv-4',
@@ -103,6 +122,7 @@ export const INITIAL_SITE_CONTENT: SiteContent = {
   aiCreative: {
     heading: 'AI Creative',
     badge: 'Generative Workflows · 2–3 Years Practice',
+    visibility: true,
     studies: [
       {
         id: 'ai-1',
@@ -122,6 +142,7 @@ export const INITIAL_SITE_CONTENT: SiteContent = {
         posterUrl: '/src/assets/images/hero_arch_viz_1790605520563.jpg',
         type: 'video',
         aspect: 'aspect-[16/9]',
+        isPlaceholder: true,
       },
       {
         id: 'ai-3',
@@ -141,12 +162,14 @@ export const INITIAL_SITE_CONTENT: SiteContent = {
         posterUrl: '/src/assets/images/project_solis_residence_1790605551876.jpg',
         type: 'video',
         aspect: 'aspect-[16/9]',
+        isPlaceholder: true,
       },
     ],
   },
   clients: {
     heading: 'USA · CANADA · DUBAI · EGYPT · THAILAND · INDIA',
     badge: 'International Experience',
+    visibility: true,
     regions: [
       {
         id: 'reg-1',
@@ -189,6 +212,7 @@ export const INITIAL_SITE_CONTENT: SiteContent = {
   contact: {
     badge: 'Initiate Project',
     heading: "Let's create.",
+    visibility: true,
     subheadingTags: [
       'AI Creative',
       '3D Visualization',

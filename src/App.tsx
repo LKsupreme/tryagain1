@@ -3,6 +3,7 @@ import { Project, SiteContent } from './types';
 import { StorageService } from './services/storage';
 import { Header } from './components/public/Header';
 import { Hero } from './components/public/Hero';
+import { Showreel } from './components/public/Showreel';
 import { ProjectGrid } from './components/public/ProjectGrid';
 import { ProjectDetail } from './components/public/ProjectDetail';
 import { AICreative } from './components/public/AICreative';
@@ -20,7 +21,7 @@ export default function App() {
   const [projects, setProjects] = useState<Project[]>(() => StorageService.getProjects());
   const [siteContent, setSiteContent] = useState<SiteContent>(() => StorageService.getSiteContent());
   const [isEditMode, setIsEditMode] = useState(false);
-  const [adminInitialTab, setAdminInitialTab] = useState<'projects' | 'site_content'>('projects');
+  const [adminInitialTab, setAdminInitialTab] = useState<'projects' | 'site_content' | 'media_library'>('projects');
 
   const getResolvedPath = () => {
     if (typeof window === 'undefined') return '/';
@@ -51,46 +52,48 @@ export default function App() {
   const [sitemapModalOpen, setSitemapModalOpen] = useState(false);
   const [sitemapMode, setSitemapMode] = useState<'sitemap' | 'robots'>('sitemap');
 
-  // Sync projects and siteContent when StorageService fires update events
+  // Sync projects and site content from storage events across components and tabs
   useEffect(() => {
-    const unsubProjects = StorageService.onProjectsChange((updatedProjects) => {
-      setProjects(updatedProjects);
-    });
-    const unsubContent = StorageService.onSiteContentChange((updatedContent) => {
-      setSiteContent(updatedContent);
-    });
+    const unsubProjects = StorageService.onProjectsChange((updated) => setProjects(updated));
+    const unsubContent = StorageService.onSiteContentChange((updated) => setSiteContent(updated));
     return () => {
       unsubProjects();
       unsubContent();
     };
   }, []);
 
-  // Update isAdmin when navigation or storage changes
+  // Sync auth state whenever navigating or storage changes
   useEffect(() => {
     setIsAdmin(checkAdminAuth());
   }, [currentPath]);
 
-  // Listen to browser popstate and hashchange (back/forward navigation)
+  // Sync URL popstate
   useEffect(() => {
-    const handleUrlChange = () => {
+    const handlePopState = () => {
       setCurrentPath(getResolvedPath());
+      setIsAdmin(checkAdminAuth());
     };
-    window.addEventListener('popstate', handleUrlChange);
-    window.addEventListener('hashchange', handleUrlChange);
-    return () => {
-      window.removeEventListener('popstate', handleUrlChange);
-      window.removeEventListener('hashchange', handleUrlChange);
-    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  // Navigation router helper
   const navigate = (path: string) => {
+    if (path.startsWith('/#') || path.startsWith('#')) {
+      const id = path.replace(/^\/?#/, '');
+      const element = document.getElementById(id);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+        return;
+      }
+    }
+
     if (path === '/admin') {
       window.history.pushState({}, '', '/admin');
     } else {
       window.history.pushState({}, '', path);
     }
     setCurrentPath(path);
+    setIsAdmin(checkAdminAuth());
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -107,7 +110,7 @@ export default function App() {
       const slug = currentPath.replace('/project/', '');
       const proj = projects.find((p) => p.slug.toLowerCase() === slug.toLowerCase());
       if (proj) {
-        document.title = `${proj.title} · Elle Kay · AI Creative Artist & 3D Designer`;
+        document.title = proj.seoTitle || `${proj.title} · Elle Kay · AI Creative Artist & 3D Designer`;
       } else {
         document.title = 'Project Not Found · Elle Kay Studio';
       }
@@ -191,7 +194,9 @@ export default function App() {
   }
 
   // Route 3: Homepage (Default)
-  const publishedProjects = projects.filter((p) => p.isPublished);
+  const homepageProjects = projects.filter(
+    (p) => p.isPublished && p.homepageVisibility !== false
+  );
 
   return (
     <div className="min-h-screen bg-[#f9f8f5] text-[#18181b]">
@@ -203,56 +208,77 @@ export default function App() {
 
       <main>
         {/* Full-bleed Luxury Hero */}
-        <Hero
-          content={siteContent.hero}
-          isEditMode={isEditMode}
-          onEditSection={handleOpenContentEditor}
-          onExploreClick={() => {
-            const el = document.getElementById('work');
-            el?.scrollIntoView({ behavior: 'smooth' });
-          }}
-        />
+        {siteContent.hero.visibility !== false && (
+          <Hero
+            content={siteContent.hero}
+            isEditMode={isEditMode}
+            onEditSection={handleOpenContentEditor}
+            onExploreClick={() => {
+              const el = document.getElementById('work');
+              el?.scrollIntoView({ behavior: 'smooth' });
+            }}
+          />
+        )}
 
-        {/* Selected Works - pulls published/featured projects from CMS */}
+        {/* Selected Works - pulls published/homepage visible projects from CMS */}
         <ProjectGrid
-          projects={publishedProjects}
+          projects={homepageProjects}
           onSelectProject={(slug) => navigate(`/project/${slug}`)}
         />
 
+        {/* Cinematic Showreel & Walkthrough sequence */}
+        {siteContent.showreel?.visibility !== false && (
+          <Showreel
+            content={siteContent.showreel}
+            isEditMode={isEditMode}
+            onEditSection={handleOpenContentEditor}
+          />
+        )}
+
         {/* Generative AI Practice & Prompt Workflows */}
-        <AICreative
-          content={siteContent.aiCreative}
-          isEditMode={isEditMode}
-          onEditSection={handleOpenContentEditor}
-        />
+        {siteContent.aiCreative.visibility !== false && (
+          <AICreative
+            content={siteContent.aiCreative}
+            isEditMode={isEditMode}
+            onEditSection={handleOpenContentEditor}
+          />
+        )}
 
         {/* Studio Services & Scope */}
-        <Services
-          content={siteContent.services}
-          isEditMode={isEditMode}
-          onEditSection={handleOpenContentEditor}
-        />
+        {siteContent.services.visibility !== false && (
+          <Services
+            content={siteContent.services}
+            isEditMode={isEditMode}
+            onEditSection={handleOpenContentEditor}
+          />
+        )}
 
         {/* Studio Biography & Philosophy */}
-        <About
-          content={siteContent.about}
-          isEditMode={isEditMode}
-          onEditSection={handleOpenContentEditor}
-        />
+        {siteContent.about.visibility !== false && (
+          <About
+            content={siteContent.about}
+            isEditMode={isEditMode}
+            onEditSection={handleOpenContentEditor}
+          />
+        )}
 
         {/* Global Collaborations */}
-        <Clients
-          content={siteContent.clients}
-          isEditMode={isEditMode}
-          onEditSection={handleOpenContentEditor}
-        />
+        {siteContent.clients.visibility !== false && (
+          <Clients
+            content={siteContent.clients}
+            isEditMode={isEditMode}
+            onEditSection={handleOpenContentEditor}
+          />
+        )}
 
         {/* Direct Inquiries & WhatsApp CTA */}
-        <Contact
-          content={siteContent.contact}
-          isEditMode={isEditMode}
-          onEditSection={handleOpenContentEditor}
-        />
+        {siteContent.contact.visibility !== false && (
+          <Contact
+            content={siteContent.contact}
+            isEditMode={isEditMode}
+            onEditSection={handleOpenContentEditor}
+          />
+        )}
       </main>
 
       {/* Floating Live Edit & Media Upload Toolbar */}
@@ -288,4 +314,3 @@ export default function App() {
     </div>
   );
 }
-

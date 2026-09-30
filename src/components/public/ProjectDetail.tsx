@@ -34,14 +34,15 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({
             type: project.coverType || 'image',
             url: project.coverUrl || project.coverImage || '',
             posterUrl: project.coverPosterUrl,
-            caption: '',
+            caption: project.title,
+            altText: project.coverAltText || project.title,
             aspect: '16:9',
           },
         ];
 
   // WhatsApp & Email direct CTAs
   const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(
-    `Hello Elle, I am viewing your project "${project.title}" (${project.category}) and would like to discuss an upcoming visual commission.`
+    `Hello Elle, I am reviewing your project "${project.title}" (${project.category}) and would like to discuss an upcoming visual commission.`
   )}`;
 
   const mailtoUrl = `mailto:connect.ellekay@gmail.com?subject=${encodeURIComponent(
@@ -61,7 +62,7 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({
         videoId = url.split('youtu.be/')[1].split('?')[0];
       }
       return (
-        <div className="aspect-video w-full overflow-hidden bg-black">
+        <div className="aspect-video w-full overflow-hidden bg-black rounded">
           <iframe
             src={`https://www.youtube.com/embed/${videoId}?rel=0`}
             title={project.title}
@@ -75,7 +76,7 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({
     if (url.includes('vimeo.com')) {
       const vimeoId = url.split('/').pop()?.split('?')[0];
       return (
-        <div className="aspect-video w-full overflow-hidden bg-black">
+        <div className="aspect-video w-full overflow-hidden bg-black rounded">
           <iframe
             src={`https://player.vimeo.com/video/${vimeoId}`}
             title={project.title}
@@ -86,24 +87,26 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({
       );
     }
 
-    // HTML5 / Cloudflare Stream video
+    // HTML5 / Video Stream
     return (
-      <div className="aspect-[16/9] sm:aspect-[21/9] w-full overflow-hidden bg-black relative">
+      <div className="aspect-[16/9] sm:aspect-[21/9] w-full overflow-hidden bg-black rounded relative">
         <video
-          controls
-          autoPlay
-          muted
-          loop
+          controls={item.controls ?? true}
+          autoPlay={item.autoplay ?? true}
+          muted={item.muted ?? true}
+          loop={item.loop ?? true}
           playsInline
           className="h-full w-full object-cover"
           src={url}
-          poster={item.posterUrl || project.coverImage}
+          poster={item.posterUrl || project.coverPosterUrl || project.coverImage}
         >
           Your browser does not support the video tag.
         </video>
       </div>
     );
   };
+
+  const projectNarrative = project.fullDescription || project.description || '';
 
   return (
     <article className="min-h-screen bg-[#f9f8f5] text-[#18181b] pb-36">
@@ -138,24 +141,57 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({
       </div>
 
       {/* Project Title Block — Minimal, Elegant */}
-      <header className="mx-auto max-w-7xl px-6 pt-20 pb-12 lg:px-12 space-y-2">
+      <header className="mx-auto max-w-7xl px-6 pt-20 pb-12 lg:px-12 space-y-4">
         <h1 className="font-editorial text-4xl sm:text-6xl lg:text-7xl font-light text-[#18181b] tracking-tight">
           {project.title}
         </h1>
 
-        <p className="text-xs uppercase tracking-[0.22em] text-[#787268]">
-          {project.category} · {project.year} · {project.location}
-        </p>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs uppercase tracking-[0.2em] text-[#787268]">
+          <span>{project.category}</span>
+          <span>·</span>
+          <span>{project.year}</span>
+          <span>·</span>
+          <span>{project.location}</span>
+          {project.client && (
+            <>
+              <span>·</span>
+              <span className="text-[#18181b]">Client: {project.client}</span>
+            </>
+          )}
+          {project.role && (
+            <>
+              <span>·</span>
+              <span className="text-[#877158]">Role: {project.role}</span>
+            </>
+          )}
+        </div>
 
-        {project.description && (
-          <p className="pt-4 text-base sm:text-lg text-[#524d45] font-light max-w-3xl leading-relaxed">
-            {project.description}
+        {projectNarrative && (
+          <p className="pt-4 text-base sm:text-lg text-[#524d45] font-light max-w-3xl leading-relaxed whitespace-pre-line">
+            {projectNarrative}
           </p>
+        )}
+
+        {/* Software Stack Tags */}
+        {project.softwareStack && project.softwareStack.length > 0 && (
+          <div className="pt-4 flex flex-wrap items-center gap-2">
+            <span className="text-[11px] uppercase tracking-[0.2em] text-[#877158] font-medium mr-2">
+              Production Stack:
+            </span>
+            {project.softwareStack.map((sw) => (
+              <span
+                key={sw}
+                className="text-[11px] bg-white border border-[#ded7cc] text-[#524d45] px-2.5 py-0.5 rounded font-mono"
+              >
+                {sw}
+              </span>
+            ))}
+          </div>
         )}
       </header>
 
-      {/* Continuous 90% Visual Flow: Images and Videos in Storytelling Sequence */}
-      <div className="space-y-24 sm:space-y-36 max-w-[1700px] mx-auto px-0 sm:px-6 lg:px-12">
+      {/* Continuous Visual Flow: Images and Videos in Exact Sequence */}
+      <div className="space-y-24 sm:space-y-36 max-w-[1700px] mx-auto px-0 sm:px-6 lg:px-12 pt-8">
         {mediaList.map((media, idx) => {
           if (media.type === 'video') {
             return (
@@ -178,7 +214,7 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({
               className="group cursor-pointer w-full space-y-3"
             >
               <div
-                className={`relative w-full overflow-hidden bg-[#e8e3d8] ${
+                className={`relative w-full overflow-hidden bg-[#e8e3d8] rounded ${
                   idx === 0
                     ? 'aspect-[16/9] sm:aspect-[21/10]'
                     : media.aspect === '4:3'
@@ -188,7 +224,7 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({
               >
                 <img
                   src={media.url}
-                  alt={media.caption || `${project.title} view ${idx + 1}`}
+                  alt={media.altText || media.caption || `${project.title} view ${idx + 1}`}
                   loading="lazy"
                   className="img-editorial h-full w-full object-cover object-center"
                   referrerPolicy="no-referrer"
@@ -248,65 +284,17 @@ export const ProjectDetail: React.FC<ProjectDetailProps> = ({
         >
           <button
             onClick={() => setActiveLightboxIndex(null)}
-            className="absolute top-6 right-6 p-2 text-white/60 hover:text-white"
-            aria-label="Close"
+            className="absolute top-6 right-6 p-2 text-white/70 hover:text-white"
           >
             <X className="h-6 w-6" />
           </button>
 
-          {mediaList.length > 1 && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setActiveLightboxIndex(
-                  (activeLightboxIndex - 1 + mediaList.length) % mediaList.length
-                );
-              }}
-              className="absolute left-6 p-2 text-white/60 hover:text-white"
-              aria-label="Previous"
-            >
-              <ChevronLeft className="h-6 w-6" />
-            </button>
-          )}
-
-          <div
+          <img
+            src={mediaList[activeLightboxIndex].url}
+            alt={mediaList[activeLightboxIndex].caption || project.title}
+            className="max-h-[90vh] max-w-[95vw] object-contain"
             onClick={(e) => e.stopPropagation()}
-            className="max-h-[85vh] max-w-6xl flex flex-col items-center"
-          >
-            {mediaList[activeLightboxIndex].type === 'video' ? (
-              <video
-                controls
-                autoPlay
-                className="max-h-[80vh] max-w-full"
-                src={mediaList[activeLightboxIndex].url}
-              />
-            ) : (
-              <img
-                src={mediaList[activeLightboxIndex].url}
-                alt={mediaList[activeLightboxIndex].caption || project.title}
-                className="max-h-[80vh] max-w-full object-contain"
-                referrerPolicy="no-referrer"
-              />
-            )}
-            {mediaList[activeLightboxIndex].caption && (
-              <p className="mt-4 text-center text-xs text-[#9c9588]">
-                {mediaList[activeLightboxIndex].caption}
-              </p>
-            )}
-          </div>
-
-          {mediaList.length > 1 && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setActiveLightboxIndex((activeLightboxIndex + 1) % mediaList.length);
-              }}
-              className="absolute right-6 p-2 text-white/60 hover:text-white"
-              aria-label="Next"
-            >
-              <ChevronRight className="h-6 w-6" />
-            </button>
-          )}
+          />
         </div>
       )}
     </article>

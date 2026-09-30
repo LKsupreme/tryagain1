@@ -1,11 +1,13 @@
 import { INITIAL_PROJECTS, INITIAL_MEDIA_LIBRARY } from '../data/initialProjects';
 import { INITIAL_SITE_CONTENT } from '../data/initialSiteContent';
-import { CloudflareConfig, Project, MediaLibraryItem, SiteContent } from '../types';
+import { CloudflareConfig, Project, MediaLibraryItem, SiteContent, MediaItem } from '../types';
+import { isPlaceholderUrl } from './mediaAudit';
 
-const STORAGE_KEY = 'elle_kay_portfolio_projects_v4';
-const MEDIA_LIB_KEY = 'elle_kay_media_library_v1';
+const STORAGE_KEY = 'elle_kay_portfolio_projects_v5';
+const PREV_STORAGE_KEY = 'elle_kay_portfolio_projects_v4';
+const MEDIA_LIB_KEY = 'elle_kay_media_library_v2';
 const CF_CONFIG_KEY = 'elle_kay_cloudflare_config_v1';
-const SITE_CONTENT_KEY = 'elle_kay_site_content_v1';
+const SITE_CONTENT_KEY = 'elle_kay_site_content_v2';
 const UPDATE_EVENT_NAME = 'elle_kay_projects_updated';
 const MEDIA_UPDATE_EVENT = 'elle_kay_media_updated';
 const SITE_CONTENT_UPDATE_EVENT = 'elle_kay_site_content_updated';
@@ -18,20 +20,29 @@ const DEFAULT_CF_CONFIG: CloudflareConfig = {
   enabled: false,
 };
 
-// Normalize project to guarantee video-first media fields
+// Normalize project to guarantee complete video/image media fields & placeholder flags
 function normalizeProject(p: any): Project {
   const coverUrl = p.coverUrl || p.coverImage || '/src/assets/images/hero_arch_viz_1790605520563.jpg';
-  const coverType = p.coverType || (coverUrl.endsWith('.mp4') ? 'video' : 'image');
-  
-  let media = Array.isArray(p.media) ? p.media : [];
+  const coverType: 'image' | 'video' = p.coverType || (coverUrl.toLowerCase().endsWith('.mp4') || coverUrl.toLowerCase().endsWith('.webm') ? 'video' : 'image');
+  const coverIsPlaceholder = p.coverIsPlaceholder !== undefined ? p.coverIsPlaceholder : isPlaceholderUrl(coverUrl);
+
+  let media: MediaItem[] = Array.isArray(p.media) ? p.media : [];
   if (media.length === 0 && Array.isArray(p.gallery)) {
     media = p.gallery.map((g: any) => ({
-      id: g.id || `m-${Date.now()}-${Math.random()}`,
-      type: g.type || 'image',
+      id: g.id || `m-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      type: g.type || (g.url?.toLowerCase().endsWith('.mp4') ? 'video' : 'image'),
       url: g.url,
       posterUrl: g.posterUrl,
       caption: g.caption,
+      altText: g.altText || g.caption,
       aspect: g.aspect || '16:9',
+      isPlaceholder: isPlaceholderUrl(g.url),
+      autoplay: g.autoplay ?? true,
+      loop: g.loop ?? true,
+      muted: g.muted ?? true,
+      controls: g.controls ?? true,
+      showOnHomepage: g.showOnHomepage ?? true,
+      showInGallery: g.showInGallery ?? true,
     }));
   }
 
@@ -43,17 +54,44 @@ function normalizeProject(p: any): Project {
         type: coverType,
         url: coverUrl,
         posterUrl: p.coverPosterUrl,
-        caption: '',
+        caption: p.title,
+        altText: p.title,
         aspect: '16:9',
+        isPlaceholder: coverIsPlaceholder,
+        autoplay: true,
+        loop: true,
+        muted: true,
+        controls: true,
+        showOnHomepage: true,
+        showInGallery: true,
       },
     ];
+  } else {
+    // Flag any placeholder item
+    media = media.map((m) => ({
+      ...m,
+      isPlaceholder: m.isPlaceholder !== undefined ? m.isPlaceholder : isPlaceholderUrl(m.url),
+      showOnHomepage: m.showOnHomepage ?? true,
+      showInGallery: m.showInGallery ?? true,
+      autoplay: m.autoplay ?? true,
+      loop: m.loop ?? true,
+      muted: m.muted ?? true,
+      controls: m.controls ?? true,
+    }));
   }
 
   return {
     ...p,
+    role: p.role || 'Lead Designer & 3D Visualizer',
+    fullDescription: p.fullDescription || p.description || '',
+    seoTitle: p.seoTitle || `${p.title} · Elle Kay Portfolio`,
+    seoDescription: p.seoDescription || p.description || '',
     coverUrl,
     coverType,
+    coverPosterUrl: p.coverPosterUrl,
+    coverIsPlaceholder,
     coverImage: coverUrl,
+    homepageVisibility: p.homepageVisibility ?? true,
     media,
     gallery: media,
   };
@@ -69,9 +107,28 @@ export const StorageService = {
           return parsed.map(normalizeProject).sort((a, b) => a.orderIndex - b.orderIndex);
         }
       }
+
+      // Check migration from previous storage key
+      const prevStored = localStorage.getItem(PREV_STORAGE_KEY);
+      if (prevStored) {
+        const prevParsed = JSON.parse(prevStored);
+        if (Array.isArray(prevParsed) && prevParsed.length > 0) {
+          // Merge missing projects from INITIAL_PROJECTS
+          const merged = [...prevParsed];
+          INITIAL_PROJECTS.forEach((initP) => {
+            if (!merged.some((p) => p.slug === initP.slug || p.id === initP.id)) {
+              merged.push(initP);
+            }
+          });
+          const normalized = merged.map(normalizeProject).sort((a, b) => a.orderIndex - b.orderIndex);
+          StorageService.saveAllProjects(normalized);
+          return normalized;
+        }
+      }
     } catch (e) {
       console.error('Failed to parse projects from localStorage:', e);
     }
+
     // Initialize with defaults
     StorageService.saveAllProjects(INITIAL_PROJECTS);
     return INITIAL_PROJECTS.map(normalizeProject);
@@ -85,8 +142,16 @@ export const StorageService = {
     return StorageService.getProjects().filter((p) => p.isPublished && p.isFeatured);
   },
 
+  getHomepageProjects(): Project[] {
+    return StorageService.getProjects().filter(
+      (p) => p.isPublished && p.homepageVisibility !== false
+    );
+  },
+
   getProjectBySlug(slug: string): Project | undefined {
-    return StorageService.getProjects().find((p) => p.slug.toLowerCase() === slug.toLowerCase());
+    return StorageService.getProjects().find(
+      (p) => p.slug.toLowerCase() === slug.toLowerCase()
+    );
   },
 
   saveAllProjects(projects: Project[]): void {
@@ -186,21 +251,36 @@ export const StorageService = {
 
   exportProjectsAsJSON(): string {
     const projects = StorageService.getProjects();
-    return JSON.stringify(projects, null, 2);
+    const siteContent = StorageService.getSiteContent();
+    const mediaLib = StorageService.getMediaLibrary();
+    const exportBundle = {
+      version: '5.0',
+      exportedAt: new Date().toISOString(),
+      projects,
+      siteContent,
+      mediaLibrary: mediaLib,
+    };
+    return JSON.stringify(exportBundle, null, 2);
   },
 
   importProjectsFromJSON(jsonString: string): { success: boolean; count?: number; error?: string } {
     try {
       const parsed = JSON.parse(jsonString);
-      if (!Array.isArray(parsed)) {
-        return { success: false, error: 'Imported file must contain a JSON array of projects.' };
+      if (parsed.projects && Array.isArray(parsed.projects)) {
+        StorageService.saveAllProjects(parsed.projects);
+        if (parsed.siteContent) StorageService.saveSiteContent(parsed.siteContent);
+        if (parsed.mediaLibrary) StorageService.saveMediaLibrary(parsed.mediaLibrary);
+        return { success: true, count: parsed.projects.length };
       }
-      const valid = parsed.every((p) => p.id && p.title && p.slug);
-      if (!valid) {
-        return { success: false, error: 'JSON missing required project fields (id, title, or slug).' };
+      if (Array.isArray(parsed)) {
+        const valid = parsed.every((p) => p.id && p.title && p.slug);
+        if (!valid) {
+          return { success: false, error: 'JSON missing required project fields (id, title, or slug).' };
+        }
+        StorageService.saveAllProjects(parsed);
+        return { success: true, count: parsed.length };
       }
-      StorageService.saveAllProjects(parsed);
-      return { success: true, count: parsed.length };
+      return { success: false, error: 'Imported file must contain a valid projects array or backup bundle.' };
     } catch (e: any) {
       return { success: false, error: e?.message || 'Invalid JSON syntax' };
     }
@@ -208,6 +288,8 @@ export const StorageService = {
 
   resetToDefaults(): void {
     StorageService.saveAllProjects(INITIAL_PROJECTS);
+    StorageService.saveSiteContent(INITIAL_SITE_CONTENT);
+    StorageService.saveMediaLibrary(INITIAL_MEDIA_LIBRARY);
   },
 
   // Media Library Operations
@@ -236,10 +318,20 @@ export const StorageService = {
       ...item,
       id: `lib-${Date.now()}`,
       addedAt: new Date().toISOString().split('T')[0],
+      isPlaceholder: isPlaceholderUrl(item.url),
     };
     library.unshift(newItem);
     StorageService.saveMediaLibrary(library);
     return newItem;
+  },
+
+  updateMediaItem(id: string, updates: Partial<MediaLibraryItem>): void {
+    const library = StorageService.getMediaLibrary();
+    const index = library.findIndex((m) => m.id === id);
+    if (index >= 0) {
+      library[index] = { ...library[index], ...updates };
+      StorageService.saveMediaLibrary(library);
+    }
   },
 
   deleteMediaItem(id: string): void {
@@ -287,9 +379,9 @@ export const StorageService = {
       const stored = localStorage.getItem(SITE_CONTENT_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
-        // Deep merge with initial content so newly added fields have defaults
         return {
           hero: { ...INITIAL_SITE_CONTENT.hero, ...(parsed.hero || {}) },
+          showreel: { ...INITIAL_SITE_CONTENT.showreel, ...(parsed.showreel || {}) },
           about: {
             ...INITIAL_SITE_CONTENT.about,
             ...(parsed.about || {}),
@@ -343,7 +435,7 @@ export const StorageService = {
     const updated: SiteContent = {
       ...current,
       [section]: {
-        ...current[section],
+        ...(current[section] as any),
         ...data,
       },
     };

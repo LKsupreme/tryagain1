@@ -14,125 +14,207 @@ import {
   Phone,
   Briefcase,
   Compass,
+  FolderOpen,
+  AlertTriangle,
+  Eye,
+  EyeOff,
+  Video,
 } from 'lucide-react';
-import { SiteContent, ServiceItemContent, AICreativeStudy, ClientRegionItem, AboutExperienceItem } from '../../types';
+import {
+  SiteContent,
+  ServiceItemContent,
+  AICreativeStudy,
+  ClientRegionItem,
+  AboutExperienceItem,
+  MediaLibraryItem,
+} from '../../types';
 import { StorageService } from '../../services/storage';
+import { INITIAL_SITE_CONTENT } from '../../data/initialSiteContent';
 import { FileUploadDropzone } from './FileUploadDropzone';
+import { MediaLibraryModal } from './MediaLibraryModal';
+import { isPlaceholderUrl } from '../../services/mediaAudit';
 
 interface SiteContentEditorProps {
-  onClose?: () => void;
-  onNavigateToPreview?: () => void;
+  onSaved?: () => void;
 }
 
-type ContentTab = 'hero' | 'about' | 'services' | 'aiCreative' | 'clients' | 'contact' | 'branding';
+type ContentTab =
+  | 'hero'
+  | 'showreel'
+  | 'about'
+  | 'services'
+  | 'aiCreative'
+  | 'clients'
+  | 'contact'
+  | 'footer';
 
-export const SiteContentEditor: React.FC<SiteContentEditorProps> = ({
-  onClose,
-  onNavigateToPreview,
-}) => {
+export const SiteContentEditor: React.FC<SiteContentEditorProps> = ({ onSaved }) => {
   const [content, setContent] = useState<SiteContent>(() => StorageService.getSiteContent());
   const [activeTab, setActiveTab] = useState<ContentTab>('hero');
-  const [savedSuccess, setSavedSuccess] = useState(false);
-  const [resetSuccess, setResetSuccess] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  const handleSave = (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    StorageService.saveSiteContent(content);
-    setSavedSuccess(true);
-    setTimeout(() => setSavedSuccess(false), 2500);
+  // Media Library Picker state
+  const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
+  const [mediaPickerTarget, setMediaPickerTarget] = useState<{
+    section: ContentTab;
+    field: string;
+    index?: number;
+  } | null>(null);
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3000);
   };
 
-  const handleReset = () => {
-    if (window.confirm('Reset all website text and copy back to original editorial defaults?')) {
-      const reset = StorageService.resetSiteContentToDefaults();
-      setContent(reset);
-      setResetSuccess(true);
-      setTimeout(() => setResetSuccess(false), 2500);
+  const handleSave = () => {
+    StorageService.saveSiteContent(content);
+    showToast('✓ All changes saved and published to live website!');
+    if (onSaved) onSaved();
+  };
+
+  const handleResetToDefaults = () => {
+    if (window.confirm('Reset all website text and sections back to default content?')) {
+      const def = StorageService.resetSiteContentToDefaults();
+      setContent(def);
+      showToast('Website content reset to editorial defaults.');
     }
   };
 
-  // Helper updates
-  const updateHero = (field: keyof SiteContent['hero'], value: any) => {
-    setContent((prev) => ({ ...prev, hero: { ...prev.hero, [field]: value } }));
+  const openLibraryForField = (section: ContentTab, field: string, index?: number) => {
+    setMediaPickerTarget({ section, field, index });
+    setMediaPickerOpen(true);
   };
 
-  const updateAbout = (field: keyof SiteContent['about'], value: any) => {
-    setContent((prev) => ({ ...prev, about: { ...prev.about, [field]: value } }));
-  };
+  const handleMediaSelected = (item: MediaLibraryItem) => {
+    if (!mediaPickerTarget) return;
+    const { section, field, index } = mediaPickerTarget;
 
-  const updateContact = (field: keyof SiteContent['contact'], value: any) => {
-    setContent((prev) => ({ ...prev, contact: { ...prev.contact, [field]: value } }));
-  };
+    if (section === 'hero') {
+      if (field === 'videoUrl') {
+        setContent((prev) => ({
+          ...prev,
+          hero: { ...prev.hero, videoUrl: item.url, isPlaceholder: false },
+        }));
+      } else if (field === 'posterUrl') {
+        setContent((prev) => ({
+          ...prev,
+          hero: { ...prev.hero, posterUrl: item.url },
+        }));
+      }
+    } else if (section === 'showreel') {
+      if (field === 'videoUrl') {
+        setContent((prev) => ({
+          ...prev,
+          showreel: {
+            ...(prev.showreel || INITIAL_SITE_CONTENT.showreel!),
+            videoUrl: item.url,
+            isPlaceholder: false,
+          },
+        }));
+      } else if (field === 'posterUrl') {
+        setContent((prev) => ({
+          ...prev,
+          showreel: {
+            ...(prev.showreel || INITIAL_SITE_CONTENT.showreel!),
+            posterUrl: item.url,
+          },
+        }));
+      }
+    } else if (section === 'about' && field === 'portraitUrl') {
+      setContent((prev) => ({
+        ...prev,
+        about: { ...prev.about, portraitUrl: item.url },
+      }));
+    } else if (section === 'services' && index !== undefined) {
+      const items = [...content.services.items];
+      items[index] = {
+        ...items[index],
+        mediaUrl: item.url,
+        type: item.type,
+        posterUrl: item.posterUrl,
+        isPlaceholder: false,
+      };
+      setContent((prev) => ({
+        ...prev,
+        services: { ...prev.services, items },
+      }));
+    } else if (section === 'aiCreative' && index !== undefined) {
+      const studies = [...content.aiCreative.studies];
+      studies[index] = {
+        ...studies[index],
+        mediaUrl: item.url,
+        type: item.type,
+        posterUrl: item.posterUrl,
+        isPlaceholder: false,
+      };
+      setContent((prev) => ({
+        ...prev,
+        aiCreative: { ...prev.aiCreative, studies },
+      }));
+    } else if (section === 'clients' && index !== undefined) {
+      const regions = [...content.clients.regions];
+      regions[index] = {
+        ...regions[index],
+        img: item.url,
+        isPlaceholder: false,
+      };
+      setContent((prev) => ({
+        ...prev,
+        clients: { ...prev.clients, regions },
+      }));
+    }
 
-  const updateBranding = (section: 'header' | 'footer', field: string, value: string) => {
-    setContent((prev) => ({
-      ...prev,
-      [section]: {
-        ...prev[section],
-        [field]: value,
-      },
-    }));
+    setMediaPickerTarget(null);
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#f9f8f5] text-[#18181b]">
-      {/* Top action bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#ded7cc] bg-white px-6 py-4">
+    <div className="bg-white border border-[#ded7cc] rounded-lg shadow-sm overflow-hidden text-[#18181b]">
+      {/* Top Action Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#ded7cc] bg-[#faf8f5] px-6 py-4">
         <div>
           <div className="flex items-center gap-2">
-            <h3 className="font-editorial text-lg text-[#18181b]">Website Text &amp; Media CMS</h3>
-            <span className="text-[10px] font-mono tracking-wider bg-amber-100 text-amber-900 border border-amber-300 font-semibold px-2 py-0.5 rounded">
+            <span className="bg-[#18181b] text-white text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded">
               Universal Editor
             </span>
+            <h3 className="text-base font-semibold text-[#18181b]">
+              Homepage & Site Content Management
+            </h3>
           </div>
-          <p className="text-xs text-[#787268]">
-            Edit headlines, biography, services, contact channels, and upload custom images or videos.
+          <p className="text-xs text-[#787268] mt-0.5">
+            Modify any headline, narrative, video, or image across the entire public site without touching code.
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-3">
           <button
-            type="button"
-            onClick={handleReset}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-[#524d45] hover:text-[#18181b] border border-[#ded7cc] rounded hover:bg-[#f4f1ea] bg-white transition-colors shadow-sm font-medium"
-            title="Reset site text to original defaults"
+            onClick={handleResetToDefaults}
+            className="flex items-center gap-1.5 border border-[#ded7cc] bg-white text-[#524d45] hover:text-[#18181b] text-xs font-semibold px-3 py-1.5 rounded transition-colors shadow-sm"
           >
             <RotateCcw className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">Reset Defaults</span>
+            <span>Reset Defaults</span>
           </button>
 
-          {onNavigateToPreview && (
-            <button
-              type="button"
-              onClick={onNavigateToPreview}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-[#524d45] hover:text-[#18181b] border border-[#ded7cc] rounded hover:bg-[#f4f1ea] bg-white transition-colors shadow-sm font-medium"
-            >
-              <ExternalLink className="h-3.5 w-3.5" />
-              <span>Preview Site</span>
-            </button>
-          )}
-
           <button
-            type="button"
-            onClick={() => handleSave()}
-            className="flex items-center gap-1.5 bg-[#18181b] text-white px-4 py-1.5 text-xs font-semibold rounded hover:bg-neutral-800 transition-colors shadow"
+            onClick={handleSave}
+            className="flex items-center gap-1.5 bg-[#18181b] hover:bg-neutral-800 text-white text-xs font-semibold px-4 py-1.5 rounded transition-colors shadow-sm"
           >
-            {savedSuccess ? <Check className="h-4 w-4 text-emerald-400" /> : <Save className="h-4 w-4" />}
-            <span>{savedSuccess ? 'Changes Saved' : 'Save All Changes'}</span>
+            <Save className="h-3.5 w-3.5" />
+            <span>Save & Publish</span>
           </button>
         </div>
       </div>
 
-      {/* Tabs navigation */}
-      <div className="flex border-b border-[#ded7cc] bg-[#faf8f5] px-6 overflow-x-auto">
+      {/* Navigation Tabs */}
+      <div className="flex border-b border-[#ded7cc] bg-[#f4f1ea] px-4 overflow-x-auto">
         {[
-          { id: 'hero', label: '1. Hero Section', icon: Compass },
-          { id: 'about', label: '2. Biography & About', icon: User },
-          { id: 'services', label: '3. Services (5 Cards)', icon: Briefcase },
-          { id: 'aiCreative', label: '4. AI Creative Studies', icon: Sparkles },
-          { id: 'clients', label: '5. Client Regions', icon: Layers },
-          { id: 'contact', label: '6. Contact & Socials', icon: Phone },
-          { id: 'branding', label: '7. Header & Footer', icon: Compass },
+          { id: 'hero', label: '1. Hero & Intro', icon: Sparkles },
+          { id: 'showreel', label: '2. Showreel', icon: Video },
+          { id: 'about', label: '3. About & Bio', icon: User },
+          { id: 'services', label: '4. Services', icon: Briefcase },
+          { id: 'aiCreative', label: '5. AI Creative', icon: Layers },
+          { id: 'clients', label: '6. International', icon: Compass },
+          { id: 'contact', label: '7. Contact & Links', icon: Phone },
+          { id: 'footer', label: '8. Footer & Branding', icon: ExternalLink },
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -140,832 +222,1168 @@ export const SiteContentEditor: React.FC<SiteContentEditorProps> = ({
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as ContentTab)}
-              className={`py-3 px-4 text-xs font-medium border-b-2 flex items-center gap-2 whitespace-nowrap transition-colors ${
+              className={`flex items-center gap-1.5 py-3 px-4 text-xs font-semibold uppercase tracking-wider border-b-2 whitespace-nowrap transition-colors ${
                 isActive
-                  ? 'border-[#18181b] text-[#18181b] bg-white font-semibold shadow-sm'
+                  ? 'border-[#18181b] text-[#18181b] bg-white'
                   : 'border-transparent text-[#787268] hover:text-[#18181b]'
               }`}
             >
-              <Icon className={`h-3.5 w-3.5 ${isActive ? 'text-[#18181b]' : 'text-[#a8a196]'}`} />
+              <Icon className="h-3.5 w-3.5" />
               <span>{tab.label}</span>
             </button>
           );
         })}
       </div>
 
-      {/* Main Form Body */}
-      <div className="flex-1 overflow-y-auto p-6 max-w-5xl mx-auto w-full space-y-8 bg-[#f9f8f5]">
-        {/* ================= HERO TAB ================= */}
+      {/* Editor Content Area */}
+      <div className="p-6 space-y-6 max-h-[75vh] overflow-y-auto bg-white">
+        {/* TAB 1: HERO */}
         {activeTab === 'hero' && (
-          <div className="space-y-6">
-            <div className="border border-[#ded7cc] bg-white p-5 rounded-lg space-y-5 shadow-sm">
-              <h4 className="text-sm font-semibold text-[#18181b] uppercase tracking-wider font-mono">
-                Hero Section Copy &amp; Cinematics
-              </h4>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-mono uppercase tracking-wider text-[#524d45] font-semibold block">
-                    Top Sub-Tagline
-                  </label>
-                  <input
-                    type="text"
-                    value={content.hero.tagline}
-                    onChange={(e) => updateHero('tagline', e.target.value)}
-                    placeholder="e.g. AI Creative Artist · 3D Designer"
-                    className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3.5 py-2 text-xs text-[#18181b] rounded focus:border-[#18181b] focus:outline-none focus:bg-white shadow-sm"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs font-mono uppercase tracking-wider text-[#524d45] font-semibold block">
-                    Bottom Badge / Experience Note
-                  </label>
-                  <input
-                    type="text"
-                    value={content.hero.badge}
-                    onChange={(e) => updateHero('badge', e.target.value)}
-                    placeholder="e.g. 7+ Years Experience · Generative AI Workflows"
-                    className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3.5 py-2 text-xs text-[#18181b] rounded focus:border-[#18181b] focus:outline-none focus:bg-white shadow-sm"
-                  />
-                </div>
+          <div className="space-y-6 max-w-4xl">
+            {/* Visibility Toggle */}
+            <div className="flex items-center justify-between p-3 bg-[#faf8f5] border border-[#ded7cc] rounded-lg">
+              <div>
+                <span className="text-xs font-semibold text-[#18181b] block">Hero Section Visibility</span>
+                <span className="text-[11px] text-[#787268]">Display hero headline and background video on homepage</span>
               </div>
+              <button
+                type="button"
+                onClick={() =>
+                  setContent((prev) => ({
+                    ...prev,
+                    hero: { ...prev.hero, visibility: prev.hero.visibility === false },
+                  }))
+                }
+                className={`flex items-center gap-1.5 px-3 py-1 rounded text-xs font-semibold border ${
+                  content.hero.visibility !== false
+                    ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                    : 'bg-neutral-100 text-neutral-600 border-neutral-300'
+                }`}
+              >
+                {content.hero.visibility !== false ? <Eye className="h-3.5 w-3.5" /> : <EyeOff className="h-3.5 w-3.5" />}
+                <span>{content.hero.visibility !== false ? 'Visible' : 'Hidden'}</span>
+              </button>
+            </div>
 
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-mono uppercase tracking-wider text-[#524d45] font-semibold block">
-                  Main Editorial Headline
+                <label className="text-xs uppercase tracking-wider font-semibold text-[#18181b]">
+                  Hero Eyebrow Tagline
                 </label>
-                <textarea
-                  rows={2}
-                  value={content.hero.heading}
-                  onChange={(e) => updateHero('heading', e.target.value)}
-                  placeholder="e.g. Visualizing ideas across 3D, design and AI."
-                  className="w-full bg-[#faf8f5] border border-[#ded7cc] p-3 text-sm text-[#18181b] font-editorial rounded focus:border-[#18181b] focus:outline-none focus:bg-white shadow-sm"
+                <input
+                  type="text"
+                  value={content.hero.tagline}
+                  onChange={(e) =>
+                    setContent((prev) => ({
+                      ...prev,
+                      hero: { ...prev.hero, tagline: e.target.value },
+                    }))
+                  }
+                  className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3 py-2 text-xs text-[#18181b] rounded focus:outline-none focus:border-[#18181b]"
                 />
               </div>
 
-              {/* Hero Video & Poster Upload */}
-              <div className="border-t border-[#ded7cc] pt-4 space-y-4">
-                <span className="text-xs uppercase tracking-wider text-[#18181b] font-mono font-semibold block">
-                  Hero Background Cinematic (Video / Render)
-                </span>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Video file upload */}
-                  <div className="space-y-2 bg-[#faf8f5] p-3.5 rounded-lg border border-[#ded7cc]">
-                    <label className="text-xs text-[#524d45] font-semibold block">
-                      Background Video URL or Upload MP4
-                    </label>
-                    <input
-                      type="text"
-                      value={content.hero.videoUrl}
-                      onChange={(e) => updateHero('videoUrl', e.target.value)}
-                      placeholder="https://...mp4 or local path"
-                      className="w-full bg-white border border-[#ded7cc] px-3 py-1.5 text-xs text-[#18181b] font-mono rounded shadow-sm focus:outline-none focus:border-[#18181b]"
-                    />
-                    <FileUploadDropzone
-                      accept="video"
-                      label="Upload Hero Video (MP4 / WebM)"
-                      category="Hero"
-                      onUploadSuccess={(item) => updateHero('videoUrl', item.url)}
-                    />
-                  </div>
-
-                  {/* Poster Image upload */}
-                  <div className="space-y-2 bg-[#faf8f5] p-3.5 rounded-lg border border-[#ded7cc]">
-                    <label className="text-xs text-[#524d45] font-semibold block">
-                      Poster Image URL or Upload Image
-                    </label>
-                    <input
-                      type="text"
-                      value={content.hero.posterUrl}
-                      onChange={(e) => updateHero('posterUrl', e.target.value)}
-                      placeholder="Image URL shown while video loads"
-                      className="w-full bg-white border border-[#ded7cc] px-3 py-1.5 text-xs text-[#18181b] font-mono rounded shadow-sm focus:outline-none focus:border-[#18181b]"
-                    />
-                    <FileUploadDropzone
-                      accept="image"
-                      label="Upload Hero Poster (JPG / WebP)"
-                      category="Hero"
-                      onUploadSuccess={(item) => updateHero('posterUrl', item.url)}
-                    />
-                  </div>
-                </div>
+              <div className="space-y-1.5">
+                <label className="text-xs uppercase tracking-wider font-semibold text-[#18181b]">
+                  Experience Badge (Bottom Right)
+                </label>
+                <input
+                  type="text"
+                  value={content.hero.badge}
+                  onChange={(e) =>
+                    setContent((prev) => ({
+                      ...prev,
+                      hero: { ...prev.hero, badge: e.target.value },
+                    }))
+                  }
+                  className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3 py-2 text-xs text-[#18181b] rounded focus:outline-none focus:border-[#18181b]"
+                />
               </div>
             </div>
-          </div>
-        )}
 
-        {/* ================= ABOUT TAB ================= */}
-        {activeTab === 'about' && (
-          <div className="space-y-6">
-            <div className="border border-[#ded7cc] bg-white p-5 rounded-lg space-y-5 shadow-sm">
-              <h4 className="text-sm font-semibold text-[#18181b] uppercase tracking-wider font-mono">
-                Studio Biography &amp; Creative Profile
-              </h4>
+            <div className="space-y-1.5">
+              <label className="text-xs uppercase tracking-wider font-semibold text-[#18181b]">
+                Main Headline
+              </label>
+              <textarea
+                rows={2}
+                value={content.hero.heading}
+                onChange={(e) =>
+                  setContent((prev) => ({
+                    ...prev,
+                    hero: { ...prev.hero, heading: e.target.value },
+                  }))
+                }
+                className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3 py-2 text-base font-editorial text-[#18181b] rounded focus:outline-none focus:border-[#18181b]"
+              />
+            </div>
 
-              {/* Portrait Image */}
-              <div className="grid grid-cols-1 sm:grid-cols-12 gap-6 items-start">
-                <div className="sm:col-span-4 space-y-3">
-                  <span className="text-xs font-mono uppercase tracking-wider text-[#524d45] font-semibold block">
-                    Elle Kay Portrait
+            {/* Hero Background Video & Poster */}
+            <div className="border border-[#ded7cc] bg-[#faf8f5] p-4 rounded-lg space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs uppercase tracking-wider font-semibold text-[#18181b]">
+                    Hero Cinematic Background Video
                   </span>
-                  <div className="aspect-[4/5] bg-[#ede7dd] border border-[#ded7cc] overflow-hidden rounded relative shadow-sm">
-                    <img
-                      src={content.about.portraitUrl}
-                      alt="Elle Kay portrait"
-                      className="h-full w-full object-cover filter grayscale contrast-105"
-                    />
-                  </div>
+                  {(content.hero.isPlaceholder || isPlaceholderUrl(content.hero.videoUrl)) && (
+                    <span className="inline-flex items-center gap-1 bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-semibold px-2 py-0.5 rounded">
+                      <AlertTriangle className="h-3 w-3 text-amber-700" />
+                      PLACEHOLDER MEDIA — REPLACE
+                    </span>
+                  )}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => openLibraryForField('hero', 'videoUrl')}
+                  className="flex items-center gap-1 text-xs text-blue-700 hover:text-blue-900 font-medium"
+                >
+                  <FolderOpen className="h-3.5 w-3.5" />
+                  <span>Choose from Library</span>
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs text-[#524d45] font-medium">MP4 / WebM Video URL</label>
+                  <input
+                    type="text"
+                    value={content.hero.videoUrl}
+                    onChange={(e) =>
+                      setContent((prev) => ({
+                        ...prev,
+                        hero: {
+                          ...prev.hero,
+                          videoUrl: e.target.value,
+                          isPlaceholder: isPlaceholderUrl(e.target.value),
+                        },
+                      }))
+                    }
+                    className="w-full bg-white border border-[#ded7cc] px-3 py-1.5 text-xs text-[#18181b] rounded font-mono"
+                  />
+                  <FileUploadDropzone
+                    compact
+                    accept="video"
+                    label="Upload Real Hero Video"
+                    category="Hero Video"
+                    onUploadSuccess={(item) => {
+                      setContent((prev) => ({
+                        ...prev,
+                        hero: {
+                          ...prev.hero,
+                          videoUrl: item.url,
+                          posterUrl: item.posterUrl || prev.hero.posterUrl,
+                          isPlaceholder: false,
+                        },
+                      }));
+                      showToast('Hero video uploaded.');
+                    }}
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs text-[#524d45] font-medium">Video Fallback Poster Image</label>
+                  <input
+                    type="text"
+                    value={content.hero.posterUrl}
+                    onChange={(e) =>
+                      setContent((prev) => ({
+                        ...prev,
+                        hero: { ...prev.hero, posterUrl: e.target.value },
+                      }))
+                    }
+                    className="w-full bg-white border border-[#ded7cc] px-3 py-1.5 text-xs text-[#18181b] rounded font-mono"
+                  />
                   <FileUploadDropzone
                     compact
                     accept="image"
-                    label="Upload Portrait Image"
-                    category="Bio"
-                    onUploadSuccess={(item) => updateAbout('portraitUrl', item.url)}
+                    label="Upload Hero Poster"
+                    category="Hero Poster"
+                    onUploadSuccess={(item) => {
+                      setContent((prev) => ({
+                        ...prev,
+                        hero: { ...prev.hero, posterUrl: item.url },
+                      }));
+                      showToast('Hero poster image updated.');
+                    }}
                   />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 2: SHOWREEL */}
+        {activeTab === 'showreel' && (
+          <div className="space-y-6 max-w-4xl">
+            {/* Visibility Toggle */}
+            <div className="flex items-center justify-between p-3 bg-[#faf8f5] border border-[#ded7cc] rounded-lg">
+              <div>
+                <span className="text-xs font-semibold text-[#18181b] block">Showreel Section Visibility</span>
+                <span className="text-[11px] text-[#787268]">Showcase dedicated full-width walkthrough video on homepage</span>
+              </div>
+              <button
+                type="button"
+                onClick={() =>
+                  setContent((prev) => ({
+                    ...prev,
+                    showreel: {
+                      ...(prev.showreel || INITIAL_SITE_CONTENT.showreel!),
+                      visibility: prev.showreel?.visibility === false,
+                    },
+                  }))
+                }
+                className={`flex items-center gap-1.5 px-3 py-1 rounded text-xs font-semibold border ${
+                  content.showreel?.visibility !== false
+                    ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                    : 'bg-neutral-100 text-neutral-600 border-neutral-300'
+                }`}
+              >
+                {content.showreel?.visibility !== false ? <Eye className="h-3.5 w-3.5" /> : <EyeOff className="h-3.5 w-3.5" />}
+                <span>{content.showreel?.visibility !== false ? 'Visible' : 'Hidden'}</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="text-xs uppercase tracking-wider font-semibold text-[#18181b]">
+                  Section Heading
+                </label>
+                <input
+                  type="text"
+                  value={content.showreel?.heading || ''}
+                  onChange={(e) =>
+                    setContent((prev) => ({
+                      ...prev,
+                      showreel: {
+                        ...(prev.showreel || INITIAL_SITE_CONTENT.showreel!),
+                        heading: e.target.value,
+                      },
+                    }))
+                  }
+                  className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3 py-2 text-xs text-[#18181b] rounded"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs uppercase tracking-wider font-semibold text-[#18181b]">
+                  Section Badge / Tagline
+                </label>
+                <input
+                  type="text"
+                  value={content.showreel?.badge || ''}
+                  onChange={(e) =>
+                    setContent((prev) => ({
+                      ...prev,
+                      showreel: {
+                        ...(prev.showreel || INITIAL_SITE_CONTENT.showreel!),
+                        badge: e.target.value,
+                      },
+                    }))
+                  }
+                  className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3 py-2 text-xs text-[#18181b] rounded"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs uppercase tracking-wider font-semibold text-[#18181b]">
+                Showreel Narrative Description
+              </label>
+              <textarea
+                rows={2}
+                value={content.showreel?.description || ''}
+                onChange={(e) =>
+                  setContent((prev) => ({
+                    ...prev,
+                    showreel: {
+                      ...(prev.showreel || INITIAL_SITE_CONTENT.showreel!),
+                      description: e.target.value,
+                    },
+                  }))
+                }
+                className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3 py-2 text-xs text-[#18181b] rounded leading-relaxed"
+              />
+            </div>
+
+            {/* Video file & poster */}
+            <div className="border border-[#ded7cc] bg-[#faf8f5] p-4 rounded-lg space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs uppercase tracking-wider font-semibold text-[#18181b]">
+                    Showreel Walkthrough Video File (MP4/WebM)
+                  </span>
+                  {(content.showreel?.isPlaceholder || isPlaceholderUrl(content.showreel?.videoUrl)) && (
+                    <span className="inline-flex items-center gap-1 bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-semibold px-2 py-0.5 rounded">
+                      <AlertTriangle className="h-3 w-3 text-amber-700" />
+                      PLACEHOLDER MEDIA — REPLACE
+                    </span>
+                  )}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => openLibraryForField('showreel', 'videoUrl')}
+                  className="flex items-center gap-1 text-xs text-blue-700 hover:text-blue-900 font-medium"
+                >
+                  <FolderOpen className="h-3.5 w-3.5" />
+                  <span>Choose from Library</span>
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs text-[#524d45]">Video Stream or File URL</label>
+                  <input
+                    type="text"
+                    value={content.showreel?.videoUrl || ''}
+                    onChange={(e) =>
+                      setContent((prev) => ({
+                        ...prev,
+                        showreel: {
+                          ...(prev.showreel || INITIAL_SITE_CONTENT.showreel!),
+                          videoUrl: e.target.value,
+                          isPlaceholder: isPlaceholderUrl(e.target.value),
+                        },
+                      }))
+                    }
+                    className="w-full bg-white border border-[#ded7cc] px-3 py-1.5 text-xs text-[#18181b] rounded font-mono"
+                  />
+                  <FileUploadDropzone
+                    compact
+                    accept="video"
+                    label="Upload Real Showreel Video"
+                    category="Showreel Video"
+                    onUploadSuccess={(item) => {
+                      setContent((prev) => ({
+                        ...prev,
+                        showreel: {
+                          ...(prev.showreel || INITIAL_SITE_CONTENT.showreel!),
+                          videoUrl: item.url,
+                          posterUrl: item.posterUrl || prev.showreel?.posterUrl || '',
+                          isPlaceholder: false,
+                        },
+                      }));
+                      showToast('Showreel video uploaded.');
+                    }}
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs text-[#524d45]">Showreel Poster Image URL</label>
+                  <input
+                    type="text"
+                    value={content.showreel?.posterUrl || ''}
+                    onChange={(e) =>
+                      setContent((prev) => ({
+                        ...prev,
+                        showreel: {
+                          ...(prev.showreel || INITIAL_SITE_CONTENT.showreel!),
+                          posterUrl: e.target.value,
+                        },
+                      }))
+                    }
+                    className="w-full bg-white border border-[#ded7cc] px-3 py-1.5 text-xs text-[#18181b] rounded font-mono"
+                  />
+                  <FileUploadDropzone
+                    compact
+                    accept="image"
+                    label="Upload Showreel Poster"
+                    category="Showreel Poster"
+                    onUploadSuccess={(item) => {
+                      setContent((prev) => ({
+                        ...prev,
+                        showreel: {
+                          ...(prev.showreel || INITIAL_SITE_CONTENT.showreel!),
+                          posterUrl: item.url,
+                        },
+                      }));
+                      showToast('Showreel poster updated.');
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 3: ABOUT */}
+        {activeTab === 'about' && (
+          <div className="space-y-6 max-w-4xl">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="text-xs uppercase tracking-wider font-semibold text-[#18181b]">
+                  Practitioner Name
+                </label>
+                <input
+                  type="text"
+                  value={content.about.name}
+                  onChange={(e) =>
+                    setContent((prev) => ({
+                      ...prev,
+                      about: { ...prev.about, name: e.target.value },
+                    }))
+                  }
+                  className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3 py-2 text-xs text-[#18181b] rounded"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs uppercase tracking-wider font-semibold text-[#18181b]">
+                  Professional Subtitle / Role
+                </label>
+                <input
+                  type="text"
+                  value={content.about.role}
+                  onChange={(e) =>
+                    setContent((prev) => ({
+                      ...prev,
+                      about: { ...prev.about, role: e.target.value },
+                    }))
+                  }
+                  className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3 py-2 text-xs text-[#18181b] rounded"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs uppercase tracking-wider font-semibold text-[#18181b]">
+                Creative Philosophy Quote
+              </label>
+              <textarea
+                rows={2}
+                value={content.about.quote}
+                onChange={(e) =>
+                  setContent((prev) => ({
+                    ...prev,
+                    about: { ...prev.about, quote: e.target.value },
+                  }))
+                }
+                className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3 py-2 text-base font-editorial text-[#18181b] rounded"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs uppercase tracking-wider font-semibold text-[#18181b]">
+                Full Biography Narrative
+              </label>
+              <textarea
+                rows={5}
+                value={content.about.bio}
+                onChange={(e) =>
+                  setContent((prev) => ({
+                    ...prev,
+                    about: { ...prev.about, bio: e.target.value },
+                  }))
+                }
+                className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3 py-2 text-xs text-[#18181b] rounded leading-relaxed font-light"
+              />
+            </div>
+
+            {/* Portrait Image Uploader */}
+            <div className="border border-[#ded7cc] bg-[#faf8f5] p-4 rounded-lg space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs uppercase tracking-wider font-semibold text-[#18181b]">
+                  Practitioner Portrait Photograph
+                </span>
+                <button
+                  type="button"
+                  onClick={() => openLibraryForField('about', 'portraitUrl')}
+                  className="flex items-center gap-1 text-xs text-blue-700 hover:text-blue-900 font-medium"
+                >
+                  <FolderOpen className="h-3.5 w-3.5" />
+                  <span>Choose from Library</span>
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
+                <div className="sm:col-span-3 aspect-[4/5] bg-neutral-200 rounded overflow-hidden max-h-36">
+                  <img
+                    src={content.about.portraitUrl}
+                    alt={content.about.name}
+                    className="h-full w-full object-cover filter grayscale"
+                  />
+                </div>
+
+                <div className="sm:col-span-9 space-y-2">
                   <input
                     type="text"
                     value={content.about.portraitUrl}
-                    onChange={(e) => updateAbout('portraitUrl', e.target.value)}
-                    placeholder="Portrait URL"
-                    className="w-full bg-[#faf8f5] border border-[#ded7cc] px-2.5 py-1 text-[11px] text-[#18181b] font-mono rounded shadow-sm"
+                    onChange={(e) =>
+                      setContent((prev) => ({
+                        ...prev,
+                        about: { ...prev.about, portraitUrl: e.target.value },
+                      }))
+                    }
+                    className="w-full bg-white border border-[#ded7cc] px-3 py-1.5 text-xs text-[#18181b] rounded font-mono"
                   />
-                </div>
-
-                <div className="sm:col-span-8 space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="space-y-1">
-                      <label className="text-xs font-mono uppercase tracking-wider text-[#524d45] font-semibold block">
-                        Artist Name
-                      </label>
-                      <input
-                        type="text"
-                        value={content.about.name}
-                        onChange={(e) => updateAbout('name', e.target.value)}
-                        className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3.5 py-2 text-xs text-[#18181b] rounded shadow-sm"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-xs font-mono uppercase tracking-wider text-[#524d45] font-semibold block">
-                        Section Badge
-                      </label>
-                      <input
-                        type="text"
-                        value={content.about.sectionBadge}
-                        onChange={(e) => updateAbout('sectionBadge', e.target.value)}
-                        className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3.5 py-2 text-xs text-[#18181b] rounded shadow-sm"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-xs font-mono uppercase tracking-wider text-[#524d45] font-semibold block">
-                      Professional Role Tagline
-                    </label>
-                    <input
-                      type="text"
-                      value={content.about.role}
-                      onChange={(e) => updateAbout('role', e.target.value)}
-                      className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3.5 py-2 text-xs text-[#18181b] rounded shadow-sm"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-xs font-mono uppercase tracking-wider text-[#524d45] font-semibold block">
-                      Featured Quote / Manifesto
-                    </label>
-                    <input
-                      type="text"
-                      value={content.about.quote}
-                      onChange={(e) => updateAbout('quote', e.target.value)}
-                      className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3.5 py-2 text-sm text-[#18181b] font-editorial rounded shadow-sm"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-xs font-mono uppercase tracking-wider text-[#524d45] font-semibold block">
-                      Editorial Biography (80–120 Words)
-                    </label>
-                    <textarea
-                      rows={5}
-                      value={content.about.bio}
-                      onChange={(e) => updateAbout('bio', e.target.value)}
-                      className="w-full bg-[#faf8f5] border border-[#ded7cc] p-3 text-xs leading-relaxed text-[#18181b] rounded focus:border-[#18181b] focus:outline-none shadow-sm"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* 3 Experience Stats */}
-              <div className="border-t border-[#ded7cc] pt-5 space-y-3">
-                <span className="text-xs uppercase tracking-wider text-[#18181b] font-mono font-semibold block">
-                  Key Experience Indicators
-                </span>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div className="bg-[#faf8f5] p-3 border border-[#ded7cc] rounded-lg space-y-1.5 shadow-sm">
-                    <input
-                      type="text"
-                      value={content.about.stat1Value}
-                      onChange={(e) => updateAbout('stat1Value', e.target.value)}
-                      className="w-full bg-white text-sm text-[#18181b] font-editorial font-bold px-2 py-1 rounded border border-[#ded7cc]"
-                    />
-                    <input
-                      type="text"
-                      value={content.about.stat1Label}
-                      onChange={(e) => updateAbout('stat1Label', e.target.value)}
-                      className="w-full bg-transparent text-[11px] text-[#787268] px-1 font-medium"
-                    />
-                  </div>
-
-                  <div className="bg-[#faf8f5] p-3 border border-[#ded7cc] rounded-lg space-y-1.5 shadow-sm">
-                    <input
-                      type="text"
-                      value={content.about.stat2Value}
-                      onChange={(e) => updateAbout('stat2Value', e.target.value)}
-                      className="w-full bg-white text-sm text-[#18181b] font-editorial font-bold px-2 py-1 rounded border border-[#ded7cc]"
-                    />
-                    <input
-                      type="text"
-                      value={content.about.stat2Label}
-                      onChange={(e) => updateAbout('stat2Label', e.target.value)}
-                      className="w-full bg-transparent text-[11px] text-[#787268] px-1 font-medium"
-                    />
-                  </div>
-
-                  <div className="bg-[#faf8f5] p-3 border border-[#ded7cc] rounded-lg space-y-1.5 shadow-sm">
-                    <input
-                      type="text"
-                      value={content.about.stat3Value}
-                      onChange={(e) => updateAbout('stat3Value', e.target.value)}
-                      className="w-full bg-white text-sm text-[#18181b] font-editorial font-bold px-2 py-1 rounded border border-[#ded7cc]"
-                    />
-                    <input
-                      type="text"
-                      value={content.about.stat3Label}
-                      onChange={(e) => updateAbout('stat3Label', e.target.value)}
-                      className="w-full bg-transparent text-[11px] text-[#787268] px-1 font-medium"
-                    />
-                  </div>
+                  <FileUploadDropzone
+                    compact
+                    accept="image"
+                    label="Upload Real Portrait Photo"
+                    category="Studio Portrait"
+                    onUploadSuccess={(item) => {
+                      setContent((prev) => ({
+                        ...prev,
+                        about: { ...prev.about, portraitUrl: item.url },
+                      }));
+                      showToast('Portrait photo updated.');
+                    }}
+                  />
                 </div>
               </div>
             </div>
           </div>
         )}
 
-        {/* ================= SERVICES TAB ================= */}
+        {/* TAB 4: SERVICES */}
         {activeTab === 'services' && (
-          <div className="space-y-6">
-            <div className="border border-[#ded7cc] bg-white p-5 rounded-lg space-y-4 shadow-sm">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h4 className="text-sm font-semibold text-[#18181b] uppercase tracking-wider font-mono">
-                    Services &amp; Visual Scope
-                  </h4>
-                  <p className="text-xs text-[#787268]">
-                    Edit titles, scope tags, descriptions, and upload unique renders/videos for each service.
-                  </p>
-                </div>
+          <div className="space-y-6 max-w-4xl">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="text-xs uppercase tracking-wider font-semibold text-[#18181b]">
+                  Section Heading
+                </label>
+                <input
+                  type="text"
+                  value={content.services.heading}
+                  onChange={(e) =>
+                    setContent((prev) => ({
+                      ...prev,
+                      services: { ...prev.services, heading: e.target.value },
+                    }))
+                  }
+                  className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3 py-2 text-xs text-[#18181b] rounded"
+                />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-4 border-b border-[#ded7cc]">
-                <div className="space-y-1">
-                  <label className="text-xs font-mono uppercase text-[#524d45] font-semibold block">Section Title</label>
-                  <input
-                    type="text"
-                    value={content.services.heading}
-                    onChange={(e) =>
-                      setContent((prev) => ({
-                        ...prev,
-                        services: { ...prev.services, heading: e.target.value },
-                      }))
-                    }
-                    className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3 py-1.5 text-xs text-[#18181b] rounded shadow-sm"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-mono uppercase text-[#524d45] font-semibold block">Section Badge</label>
-                  <input
-                    type="text"
-                    value={content.services.badge}
-                    onChange={(e) =>
-                      setContent((prev) => ({
-                        ...prev,
-                        services: { ...prev.services, badge: e.target.value },
-                      }))
-                    }
-                    className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3 py-1.5 text-xs text-[#18181b] rounded shadow-sm"
-                  />
-                </div>
+              <div className="space-y-1.5">
+                <label className="text-xs uppercase tracking-wider font-semibold text-[#18181b]">
+                  Section Badge
+                </label>
+                <input
+                  type="text"
+                  value={content.services.badge}
+                  onChange={(e) =>
+                    setContent((prev) => ({
+                      ...prev,
+                      services: { ...prev.services, badge: e.target.value },
+                    }))
+                  }
+                  className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3 py-2 text-xs text-[#18181b] rounded"
+                />
               </div>
+            </div>
 
-              {/* Service Cards List */}
-              <div className="space-y-6 pt-2">
-                {content.services.items.map((srv, index) => (
+            {/* Individual Services */}
+            <div className="space-y-4">
+              {content.services.items.map((srv, idx) => {
+                const isItemPlaceholder = srv.isPlaceholder || isPlaceholderUrl(srv.mediaUrl);
+
+                return (
                   <div
-                    key={srv.id || index}
-                    className="border border-[#ded7cc] bg-[#faf8f5] p-4 rounded-lg space-y-3 shadow-sm"
+                    key={srv.id || idx}
+                    className="border border-[#ded7cc] bg-[#faf8f5] p-4 rounded-lg space-y-3"
                   >
-                    <div className="flex items-center justify-between border-b border-[#ded7cc] pb-2">
+                    <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <span className="font-editorial text-[#877158] font-bold text-base">
-                          {srv.number}
-                        </span>
-                        <input
-                          type="text"
-                          value={srv.title}
-                          onChange={(e) => {
-                            const newItems = [...content.services.items];
-                            newItems[index].title = e.target.value;
-                            setContent((prev) => ({
-                              ...prev,
-                              services: { ...prev.services, items: newItems },
-                            }));
-                          }}
-                          className="bg-transparent font-editorial text-lg text-[#18181b] focus:outline-none border-b border-dashed border-[#ded7cc] focus:border-[#18181b] px-1 font-semibold"
-                        />
+                        <span className="font-editorial text-lg text-[#877158]">{srv.number}</span>
+                        <span className="text-xs font-semibold text-[#18181b]">{srv.title}</span>
+                        {isItemPlaceholder && (
+                          <span className="inline-flex items-center gap-1 bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-semibold px-2 py-0.5 rounded">
+                            <AlertTriangle className="h-3 w-3 text-amber-700" />
+                            PLACEHOLDER MEDIA
+                          </span>
+                        )}
                       </div>
 
-                      <div className="flex items-center gap-2">
-                        <select
-                          value={srv.type}
-                          onChange={(e) => {
-                            const newItems = [...content.services.items];
-                            newItems[index].type = e.target.value as 'image' | 'video';
-                            setContent((prev) => ({
-                              ...prev,
-                              services: { ...prev.services, items: newItems },
-                            }));
-                          }}
-                          className="bg-white border border-[#ded7cc] text-xs text-[#18181b] px-2 py-1 rounded shadow-sm font-medium"
-                        >
-                          <option value="image">Image Render</option>
-                          <option value="video">Cinematic Video</option>
-                        </select>
-                      </div>
+                      <button
+                        type="button"
+                        onClick={() => openLibraryForField('services', 'mediaUrl', idx)}
+                        className="text-xs text-blue-700 hover:text-blue-900 font-medium flex items-center gap-1"
+                      >
+                        <FolderOpen className="h-3 w-3" />
+                        <span>Pick Media</span>
+                      </button>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <div className="space-y-1">
-                        <label className="text-[11px] text-[#524d45] font-mono font-semibold block">Scope Subtitle</label>
-                        <input
-                          type="text"
-                          value={srv.scope}
-                          onChange={(e) => {
-                            const newItems = [...content.services.items];
-                            newItems[index].scope = e.target.value;
-                            setContent((prev) => ({
-                              ...prev,
-                              services: { ...prev.services, items: newItems },
-                            }));
-                          }}
-                          className="w-full bg-white border border-[#ded7cc] px-3 py-1.5 text-xs text-[#18181b] rounded shadow-sm"
-                        />
-                      </div>
-
-                      <div className="space-y-1">
-                        <label className="text-[11px] text-[#524d45] font-mono font-semibold block">Description</label>
-                        <input
-                          type="text"
-                          value={srv.description}
-                          onChange={(e) => {
-                            const newItems = [...content.services.items];
-                            newItems[index].description = e.target.value;
-                            setContent((prev) => ({
-                              ...prev,
-                              services: { ...prev.services, items: newItems },
-                            }));
-                          }}
-                          className="w-full bg-white border border-[#ded7cc] px-3 py-1.5 text-xs text-[#18181b] rounded shadow-sm"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Media Upload for Service */}
-                    <div className="pt-2 border-t border-[#ded7cc] flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-                      <div className="flex-1">
-                        <input
-                          type="text"
-                          value={srv.mediaUrl}
-                          onChange={(e) => {
-                            const newItems = [...content.services.items];
-                            newItems[index].mediaUrl = e.target.value;
-                            setContent((prev) => ({
-                              ...prev,
-                              services: { ...prev.services, items: newItems },
-                            }));
-                          }}
-                          placeholder="Media URL (R2, CDN, or uploaded asset)"
-                          className="w-full bg-white border border-[#ded7cc] px-3 py-1.5 text-xs text-[#18181b] font-mono rounded shadow-sm"
-                        />
-                      </div>
-                      <FileUploadDropzone
-                        compact
-                        accept={srv.type}
-                        label={`Upload ${srv.type === 'video' ? 'Video' : 'Render'}`}
-                        category="Services"
-                        onUploadSuccess={(item) => {
-                          const newItems = [...content.services.items];
-                          newItems[index].mediaUrl = item.url;
-                          newItems[index].type = item.type;
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <input
+                        type="text"
+                        value={srv.title}
+                        onChange={(e) => {
+                          const items = [...content.services.items];
+                          items[idx].title = e.target.value;
                           setContent((prev) => ({
                             ...prev,
-                            services: { ...prev.services, items: newItems },
+                            services: { ...prev.services, items },
                           }));
                         }}
+                        placeholder="Service title..."
+                        className="bg-white border border-[#ded7cc] px-2.5 py-1 text-xs text-[#18181b] rounded"
+                      />
+                      <input
+                        type="text"
+                        value={srv.scope}
+                        onChange={(e) => {
+                          const items = [...content.services.items];
+                          items[idx].scope = e.target.value;
+                          setContent((prev) => ({
+                            ...prev,
+                            services: { ...prev.services, items },
+                          }));
+                        }}
+                        placeholder="Scope deliverables..."
+                        className="bg-white border border-[#ded7cc] px-2.5 py-1 text-xs text-[#18181b] rounded"
                       />
                     </div>
+
+                    <textarea
+                      rows={2}
+                      value={srv.description}
+                      onChange={(e) => {
+                        const items = [...content.services.items];
+                        items[idx].description = e.target.value;
+                        setContent((prev) => ({
+                          ...prev,
+                          services: { ...prev.services, items },
+                        }));
+                      }}
+                      placeholder="Service description narrative..."
+                      className="w-full bg-white border border-[#ded7cc] px-2.5 py-1 text-xs text-[#18181b] rounded"
+                    />
+
+                    {/* Media URL & Upload */}
+                    <div className="grid grid-cols-1 sm:grid-cols-12 gap-2 pt-1 items-center">
+                      <input
+                        type="text"
+                        value={srv.mediaUrl}
+                        onChange={(e) => {
+                          const items = [...content.services.items];
+                          items[idx].mediaUrl = e.target.value;
+                          items[idx].isPlaceholder = isPlaceholderUrl(e.target.value);
+                          setContent((prev) => ({
+                            ...prev,
+                            services: { ...prev.services, items },
+                          }));
+                        }}
+                        placeholder="Visual URL (Image or MP4)"
+                        className="sm:col-span-8 bg-white border border-[#ded7cc] px-2.5 py-1 text-xs font-mono text-[#18181b] rounded"
+                      />
+                      <div className="sm:col-span-4">
+                        <FileUploadDropzone
+                          compact
+                          accept="both"
+                          label="Upload Service Visual"
+                          category="Services"
+                          onUploadSuccess={(item) => {
+                            const items = [...content.services.items];
+                            items[idx].mediaUrl = item.url;
+                            items[idx].type = item.type;
+                            items[idx].isPlaceholder = false;
+                            setContent((prev) => ({
+                              ...prev,
+                              services: { ...prev.services, items },
+                            }));
+                            showToast(`Updated service #${srv.number} visual.`);
+                          }}
+                        />
+                      </div>
+                    </div>
                   </div>
-                ))}
-              </div>
+                );
+              })}
             </div>
           </div>
         )}
 
-        {/* ================= AI CREATIVE TAB ================= */}
+        {/* TAB 5: AI CREATIVE */}
         {activeTab === 'aiCreative' && (
-          <div className="space-y-6">
-            <div className="border border-[#ded7cc] bg-white p-5 rounded-lg space-y-4 shadow-sm">
-              <h4 className="text-sm font-semibold text-[#18181b] uppercase tracking-wider font-mono">
-                Generative AI Practice &amp; Prompt Studies
-              </h4>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-4 border-b border-[#ded7cc]">
-                <div className="space-y-1">
-                  <label className="text-xs font-mono uppercase text-[#524d45] font-semibold block">Section Heading</label>
-                  <input
-                    type="text"
-                    value={content.aiCreative.heading}
-                    onChange={(e) =>
-                      setContent((prev) => ({
-                        ...prev,
-                        aiCreative: { ...prev.aiCreative, heading: e.target.value },
-                      }))
-                    }
-                    className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3 py-1.5 text-xs text-[#18181b] rounded shadow-sm"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-mono uppercase text-[#524d45] font-semibold block">Section Badge</label>
-                  <input
-                    type="text"
-                    value={content.aiCreative.badge}
-                    onChange={(e) =>
-                      setContent((prev) => ({
-                        ...prev,
-                        aiCreative: { ...prev.aiCreative, badge: e.target.value },
-                      }))
-                    }
-                    className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3 py-1.5 text-xs text-[#18181b] rounded shadow-sm"
-                  />
-                </div>
+          <div className="space-y-6 max-w-4xl">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="text-xs uppercase tracking-wider font-semibold text-[#18181b]">
+                  Section Heading
+                </label>
+                <input
+                  type="text"
+                  value={content.aiCreative.heading}
+                  onChange={(e) =>
+                    setContent((prev) => ({
+                      ...prev,
+                      aiCreative: { ...prev.aiCreative, heading: e.target.value },
+                    }))
+                  }
+                  className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3 py-2 text-xs text-[#18181b] rounded"
+                />
               </div>
 
-              {/* AI Studies List */}
-              <div className="space-y-4 pt-2">
-                {content.aiCreative.studies.map((study, idx) => (
+              <div className="space-y-1.5">
+                <label className="text-xs uppercase tracking-wider font-semibold text-[#18181b]">
+                  Section Badge
+                </label>
+                <input
+                  type="text"
+                  value={content.aiCreative.badge}
+                  onChange={(e) =>
+                    setContent((prev) => ({
+                      ...prev,
+                      aiCreative: { ...prev.aiCreative, badge: e.target.value },
+                    }))
+                  }
+                  className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3 py-2 text-xs text-[#18181b] rounded"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              {content.aiCreative.studies.map((study, idx) => {
+                const isItemPlaceholder = study.isPlaceholder || isPlaceholderUrl(study.mediaUrl);
+
+                return (
                   <div
                     key={study.id || idx}
-                    className="border border-[#ded7cc] bg-[#faf8f5] p-4 rounded-lg space-y-3 shadow-sm"
+                    className="border border-[#ded7cc] bg-[#faf8f5] p-4 rounded-lg space-y-3"
                   >
-                    <div className="flex items-center justify-between border-b border-[#ded7cc] pb-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-semibold text-[#18181b]">{study.title}</span>
+                        {isItemPlaceholder && (
+                          <span className="inline-flex items-center gap-1 bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-semibold px-2 py-0.5 rounded">
+                            <AlertTriangle className="h-3 w-3 text-amber-700" />
+                            PLACEHOLDER MEDIA
+                          </span>
+                        )}
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => openLibraryForField('aiCreative', 'mediaUrl', idx)}
+                        className="text-xs text-blue-700 hover:text-blue-900 font-medium flex items-center gap-1"
+                      >
+                        <FolderOpen className="h-3 w-3" />
+                        <span>Pick Media</span>
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <input
                         type="text"
                         value={study.title}
                         onChange={(e) => {
-                          const newStudies = [...content.aiCreative.studies];
-                          newStudies[idx].title = e.target.value;
+                          const studies = [...content.aiCreative.studies];
+                          studies[idx].title = e.target.value;
                           setContent((prev) => ({
                             ...prev,
-                            aiCreative: { ...prev.aiCreative, studies: newStudies },
+                            aiCreative: { ...prev.aiCreative, studies },
                           }));
                         }}
-                        className="bg-transparent font-medium text-[#18181b] text-sm focus:outline-none border-b border-dashed border-[#ded7cc] px-1 font-semibold"
-                        placeholder="Study Title"
+                        placeholder="Study title..."
+                        className="bg-white border border-[#ded7cc] px-2.5 py-1 text-xs text-[#18181b] rounded"
                       />
-
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="text"
-                          value={study.category}
-                          onChange={(e) => {
-                            const newStudies = [...content.aiCreative.studies];
-                            newStudies[idx].category = e.target.value;
-                            setContent((prev) => ({
-                              ...prev,
-                              aiCreative: { ...prev.aiCreative, studies: newStudies },
-                            }));
-                          }}
-                          placeholder="Category"
-                          className="bg-white border border-[#ded7cc] text-xs text-amber-800 font-medium px-2 py-1 rounded shadow-sm"
-                        />
-                        <select
-                          value={study.type}
-                          onChange={(e) => {
-                            const newStudies = [...content.aiCreative.studies];
-                            newStudies[idx].type = e.target.value as 'image' | 'video';
-                            setContent((prev) => ({
-                              ...prev,
-                              aiCreative: { ...prev.aiCreative, studies: newStudies },
-                            }));
-                          }}
-                          className="bg-white border border-[#ded7cc] text-xs text-[#18181b] px-2 py-1 rounded shadow-sm font-medium"
-                        >
-                          <option value="image">Image</option>
-                          <option value="video">Video</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <div className="space-y-1">
-                      <label className="text-[11px] text-[#524d45] font-mono font-semibold block">Generative Prompt</label>
-                      <textarea
-                        rows={2}
-                        value={study.prompt}
+                      <input
+                        type="text"
+                        value={study.category}
                         onChange={(e) => {
-                          const newStudies = [...content.aiCreative.studies];
-                          newStudies[idx].prompt = e.target.value;
+                          const studies = [...content.aiCreative.studies];
+                          studies[idx].category = e.target.value;
                           setContent((prev) => ({
                             ...prev,
-                            aiCreative: { ...prev.aiCreative, studies: newStudies },
+                            aiCreative: { ...prev.aiCreative, studies },
                           }));
                         }}
-                        className="w-full bg-white border border-[#ded7cc] p-2 text-xs text-[#18181b] font-mono rounded shadow-sm"
+                        placeholder="Category (e.g. Spatial Concept, Motion)..."
+                        className="bg-white border border-[#ded7cc] px-2.5 py-1 text-xs text-[#18181b] rounded"
                       />
                     </div>
 
-                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                    <textarea
+                      rows={2}
+                      value={study.prompt}
+                      onChange={(e) => {
+                        const studies = [...content.aiCreative.studies];
+                        studies[idx].prompt = e.target.value;
+                        setContent((prev) => ({
+                          ...prev,
+                          aiCreative: { ...prev.aiCreative, studies },
+                        }));
+                      }}
+                      placeholder="Prompt engineering formula or visual narrative..."
+                      className="w-full bg-white border border-[#ded7cc] px-2.5 py-1 text-xs text-[#18181b] rounded font-mono text-[11px]"
+                    />
+
+                    <div className="grid grid-cols-1 sm:grid-cols-12 gap-2 pt-1 items-center">
                       <input
                         type="text"
                         value={study.mediaUrl}
                         onChange={(e) => {
-                          const newStudies = [...content.aiCreative.studies];
-                          newStudies[idx].mediaUrl = e.target.value;
+                          const studies = [...content.aiCreative.studies];
+                          studies[idx].mediaUrl = e.target.value;
+                          studies[idx].isPlaceholder = isPlaceholderUrl(e.target.value);
                           setContent((prev) => ({
                             ...prev,
-                            aiCreative: { ...prev.aiCreative, studies: newStudies },
+                            aiCreative: { ...prev.aiCreative, studies },
                           }));
                         }}
-                        placeholder="Media URL"
-                        className="flex-1 bg-white border border-[#ded7cc] px-3 py-1.5 text-xs text-[#18181b] font-mono rounded shadow-sm"
+                        placeholder="Render or Video URL"
+                        className="sm:col-span-8 bg-white border border-[#ded7cc] px-2.5 py-1 text-xs font-mono text-[#18181b] rounded"
                       />
-                      <FileUploadDropzone
-                        compact
-                        accept={study.type}
-                        label="Upload Asset"
-                        category="AI Studies"
-                        onUploadSuccess={(item) => {
-                          const newStudies = [...content.aiCreative.studies];
-                          newStudies[idx].mediaUrl = item.url;
-                          newStudies[idx].type = item.type;
-                          setContent((prev) => ({
-                            ...prev,
-                            aiCreative: { ...prev.aiCreative, studies: newStudies },
-                          }));
-                        }}
-                      />
+                      <div className="sm:col-span-4">
+                        <FileUploadDropzone
+                          compact
+                          accept="both"
+                          label="Upload AI Visual"
+                          category="AI Creative"
+                          onUploadSuccess={(item) => {
+                            const studies = [...content.aiCreative.studies];
+                            studies[idx].mediaUrl = item.url;
+                            studies[idx].type = item.type;
+                            studies[idx].isPlaceholder = false;
+                            setContent((prev) => ({
+                              ...prev,
+                              aiCreative: { ...prev.aiCreative, studies },
+                            }));
+                            showToast(`Updated AI Study #${idx + 1}.`);
+                          }}
+                        />
+                      </div>
                     </div>
                   </div>
-                ))}
-              </div>
+                );
+              })}
             </div>
           </div>
         )}
 
-        {/* ================= CLIENTS TAB ================= */}
+        {/* TAB 6: CLIENTS & REGIONS */}
         {activeTab === 'clients' && (
-          <div className="space-y-6">
-            <div className="border border-[#ded7cc] bg-white p-5 rounded-lg space-y-4 shadow-sm">
-              <h4 className="text-sm font-semibold text-[#18181b] uppercase tracking-wider font-mono">
-                International Clients &amp; Regional Presence
-              </h4>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-4 border-b border-[#ded7cc]">
-                <div className="space-y-1">
-                  <label className="text-xs font-mono uppercase text-[#524d45] font-semibold block">Heading Countries</label>
-                  <input
-                    type="text"
-                    value={content.clients.heading}
-                    onChange={(e) =>
-                      setContent((prev) => ({
-                        ...prev,
-                        clients: { ...prev.clients, heading: e.target.value },
-                      }))
-                    }
-                    className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3 py-1.5 text-xs text-[#18181b] rounded font-editorial shadow-sm"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-mono uppercase text-[#524d45] font-semibold block">Section Badge</label>
-                  <input
-                    type="text"
-                    value={content.clients.badge}
-                    onChange={(e) =>
-                      setContent((prev) => ({
-                        ...prev,
-                        clients: { ...prev.clients, badge: e.target.value },
-                      }))
-                    }
-                    className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3 py-1.5 text-xs text-[#18181b] rounded shadow-sm"
-                  />
-                </div>
+          <div className="space-y-6 max-w-4xl">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="text-xs uppercase tracking-wider font-semibold text-[#18181b]">
+                  Section Headline
+                </label>
+                <input
+                  type="text"
+                  value={content.clients.heading}
+                  onChange={(e) =>
+                    setContent((prev) => ({
+                      ...prev,
+                      clients: { ...prev.clients, heading: e.target.value },
+                    }))
+                  }
+                  className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3 py-2 text-xs text-[#18181b] rounded"
+                />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
-                {content.clients.regions.map((reg, index) => (
-                  <div key={reg.id || index} className="bg-[#faf8f5] border border-[#ded7cc] p-3 rounded-lg space-y-2 shadow-sm">
-                    <div className="aspect-[4/3] bg-[#ede7dd] overflow-hidden rounded relative">
-                      <img src={reg.img} alt={reg.region} className="h-full w-full object-cover" />
-                    </div>
-                    <div className="space-y-1">
-                      <input
-                        type="text"
-                        value={reg.region}
-                        onChange={(e) => {
-                          const newRegions = [...content.clients.regions];
-                          newRegions[index].region = e.target.value;
-                          setContent((prev) => ({
-                            ...prev,
-                            clients: { ...prev.clients, regions: newRegions },
-                          }));
-                        }}
-                        className="w-full bg-white text-xs font-semibold text-[#18181b] px-2 py-1 rounded border border-[#ded7cc] shadow-sm"
-                      />
-                      <input
-                        type="text"
-                        value={reg.desc}
-                        onChange={(e) => {
-                          const newRegions = [...content.clients.regions];
-                          newRegions[index].desc = e.target.value;
-                          setContent((prev) => ({
-                            ...prev,
-                            clients: { ...prev.clients, regions: newRegions },
-                          }));
-                        }}
-                        className="w-full bg-transparent text-[11px] text-[#787268] px-1 font-medium"
-                      />
-                    </div>
+              <div className="space-y-1.5">
+                <label className="text-xs uppercase tracking-wider font-semibold text-[#18181b]">
+                  Section Badge
+                </label>
+                <input
+                  type="text"
+                  value={content.clients.badge}
+                  onChange={(e) =>
+                    setContent((prev) => ({
+                      ...prev,
+                      clients: { ...prev.clients, badge: e.target.value },
+                    }))
+                  }
+                  className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3 py-2 text-xs text-[#18181b] rounded"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {content.clients.regions.map((reg, idx) => (
+                <div
+                  key={reg.id || idx}
+                  className="border border-[#ded7cc] bg-[#faf8f5] p-3 rounded-lg space-y-2"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-[#18181b]">{reg.region}</span>
+                    <button
+                      type="button"
+                      onClick={() => openLibraryForField('clients', 'img', idx)}
+                      className="text-xs text-blue-700 hover:text-blue-900 font-medium flex items-center gap-1"
+                    >
+                      <FolderOpen className="h-3 w-3" />
+                      <span>Pick Photo</span>
+                    </button>
+                  </div>
+
+                  <input
+                    type="text"
+                    value={reg.region}
+                    onChange={(e) => {
+                      const regions = [...content.clients.regions];
+                      regions[idx].region = e.target.value;
+                      setContent((prev) => ({
+                        ...prev,
+                        clients: { ...prev.clients, regions },
+                      }));
+                    }}
+                    placeholder="Region name..."
+                    className="w-full bg-white border border-[#ded7cc] px-2.5 py-1 text-xs text-[#18181b] rounded"
+                  />
+
+                  <input
+                    type="text"
+                    value={reg.desc}
+                    onChange={(e) => {
+                      const regions = [...content.clients.regions];
+                      regions[idx].desc = e.target.value;
+                      setContent((prev) => ({
+                        ...prev,
+                        clients: { ...prev.clients, regions },
+                      }));
+                    }}
+                    placeholder="Projects description..."
+                    className="w-full bg-white border border-[#ded7cc] px-2.5 py-1 text-xs text-[#18181b] rounded"
+                  />
+
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={reg.img}
+                      onChange={(e) => {
+                        const regions = [...content.clients.regions];
+                        regions[idx].img = e.target.value;
+                        setContent((prev) => ({
+                          ...prev,
+                          clients: { ...prev.clients, regions },
+                        }));
+                      }}
+                      placeholder="Image URL..."
+                      className="flex-1 bg-white border border-[#ded7cc] px-2.5 py-1 text-xs font-mono text-[#18181b] rounded"
+                    />
                     <FileUploadDropzone
                       compact
                       accept="image"
-                      label="Replace Image"
+                      label="Upload"
                       category="Clients"
                       onUploadSuccess={(item) => {
-                        const newRegions = [...content.clients.regions];
-                        newRegions[index].img = item.url;
+                        const regions = [...content.clients.regions];
+                        regions[idx].img = item.url;
                         setContent((prev) => ({
                           ...prev,
-                          clients: { ...prev.clients, regions: newRegions },
+                          clients: { ...prev.clients, regions },
                         }));
                       }}
                     />
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
           </div>
         )}
 
-        {/* ================= CONTACT TAB ================= */}
+        {/* TAB 7: CONTACT & LINKS */}
         {activeTab === 'contact' && (
-          <div className="space-y-6">
-            <div className="border border-[#ded7cc] bg-white p-5 rounded-lg space-y-4 shadow-sm">
-              <h4 className="text-sm font-semibold text-[#18181b] uppercase tracking-wider font-mono">
-                Contact Channels &amp; Inquiries
-              </h4>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="text-xs font-mono uppercase text-[#524d45] font-semibold block">Section Badge</label>
-                  <input
-                    type="text"
-                    value={content.contact.badge}
-                    onChange={(e) => updateContact('badge', e.target.value)}
-                    className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3 py-1.5 text-xs text-[#18181b] rounded shadow-sm"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-mono uppercase text-[#524d45] font-semibold block">Heading CTA</label>
-                  <input
-                    type="text"
-                    value={content.contact.heading}
-                    onChange={(e) => updateContact('heading', e.target.value)}
-                    className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3 py-1.5 text-xs text-[#18181b] font-editorial rounded shadow-sm"
-                  />
-                </div>
+          <div className="space-y-6 max-w-4xl">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="text-xs uppercase tracking-wider font-semibold text-[#18181b]">
+                  Contact Heading
+                </label>
+                <input
+                  type="text"
+                  value={content.contact.heading}
+                  onChange={(e) =>
+                    setContent((prev) => ({
+                      ...prev,
+                      contact: { ...prev.contact, heading: e.target.value },
+                    }))
+                  }
+                  className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3 py-2 text-xs text-[#18181b] rounded"
+                />
               </div>
 
-              {/* Direct channels */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-[#ded7cc]">
-                <div className="bg-[#faf8f5] p-3 border border-[#ded7cc] rounded-lg space-y-2 shadow-sm">
-                  <span className="text-[11px] font-mono uppercase text-amber-800 font-bold block">Email Inquiries</span>
-                  <input
-                    type="email"
-                    value={content.contact.email}
-                    onChange={(e) => updateContact('email', e.target.value)}
-                    className="w-full bg-white border border-[#ded7cc] px-2.5 py-1 text-xs text-[#18181b] rounded shadow-sm"
-                  />
-                  <input
-                    type="text"
-                    value={content.contact.emailLabel}
-                    onChange={(e) => updateContact('emailLabel', e.target.value)}
-                    className="w-full bg-transparent text-[10px] text-[#787268] px-1 font-medium"
-                  />
-                </div>
-
-                <div className="bg-[#faf8f5] p-3 border border-[#ded7cc] rounded-lg space-y-2 shadow-sm">
-                  <span className="text-[11px] font-mono uppercase text-emerald-800 font-bold block">WhatsApp Direct</span>
-                  <input
-                    type="text"
-                    value={content.contact.whatsappNumber}
-                    onChange={(e) => updateContact('whatsappNumber', e.target.value)}
-                    placeholder="+1 234 567 8900"
-                    className="w-full bg-white border border-[#ded7cc] px-2.5 py-1 text-xs text-[#18181b] rounded shadow-sm"
-                  />
-                  <input
-                    type="text"
-                    value={content.contact.whatsappMessage}
-                    onChange={(e) => updateContact('whatsappMessage', e.target.value)}
-                    placeholder="Prefilled message"
-                    className="w-full bg-transparent text-[10px] text-[#787268] px-1 font-medium"
-                  />
-                </div>
-
-                <div className="bg-[#faf8f5] p-3 border border-[#ded7cc] rounded-lg space-y-2 shadow-sm">
-                  <span className="text-[11px] font-mono uppercase text-purple-800 font-bold block">Instagram / Social</span>
-                  <input
-                    type="text"
-                    value={content.contact.instagram}
-                    onChange={(e) => updateContact('instagram', e.target.value)}
-                    placeholder="@ellekay.design"
-                    className="w-full bg-white border border-[#ded7cc] px-2.5 py-1 text-xs text-[#18181b] rounded shadow-sm"
-                  />
-                  <input
-                    type="text"
-                    value={content.contact.instagramUrl}
-                    onChange={(e) => updateContact('instagramUrl', e.target.value)}
-                    placeholder="https://instagram.com/..."
-                    className="w-full bg-transparent text-[10px] text-[#787268] px-1 font-medium"
-                  />
-                </div>
+              <div className="space-y-1.5">
+                <label className="text-xs uppercase tracking-wider font-semibold text-[#18181b]">
+                  Section Badge
+                </label>
+                <input
+                  type="text"
+                  value={content.contact.badge}
+                  onChange={(e) =>
+                    setContent((prev) => ({
+                      ...prev,
+                      contact: { ...prev.contact, badge: e.target.value },
+                    }))
+                  }
+                  className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3 py-2 text-xs text-[#18181b] rounded"
+                />
               </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="text-xs uppercase tracking-wider font-semibold text-[#18181b]">
+                  Direct Email Address
+                </label>
+                <input
+                  type="email"
+                  value={content.contact.email}
+                  onChange={(e) =>
+                    setContent((prev) => ({
+                      ...prev,
+                      contact: { ...prev.contact, email: e.target.value },
+                    }))
+                  }
+                  className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3 py-2 text-xs text-[#18181b] rounded font-mono"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs uppercase tracking-wider font-semibold text-[#18181b]">
+                  WhatsApp Number (with country code)
+                </label>
+                <input
+                  type="text"
+                  value={content.contact.whatsappNumber}
+                  onChange={(e) =>
+                    setContent((prev) => ({
+                      ...prev,
+                      contact: { ...prev.contact, whatsappNumber: e.target.value },
+                    }))
+                  }
+                  className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3 py-2 text-xs text-[#18181b] rounded font-mono"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs uppercase tracking-wider font-semibold text-[#18181b]">
+                WhatsApp Prefilled Message
+              </label>
+              <textarea
+                rows={2}
+                value={content.contact.whatsappMessage}
+                onChange={(e) =>
+                  setContent((prev) => ({
+                    ...prev,
+                    contact: { ...prev.contact, whatsappMessage: e.target.value },
+                  }))
+                }
+                className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3 py-2 text-xs text-[#18181b] rounded leading-relaxed"
+              />
             </div>
           </div>
         )}
 
-        {/* ================= BRANDING TAB ================= */}
-        {activeTab === 'branding' && (
-          <div className="space-y-6">
-            <div className="border border-[#ded7cc] bg-white p-5 rounded-lg space-y-5 shadow-sm">
-              <h4 className="text-sm font-semibold text-[#18181b] uppercase tracking-wider font-mono">
-                Header &amp; Footer Studio Identity
-              </h4>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="text-xs font-mono uppercase text-[#524d45] font-semibold block">Logo / Brand Name</label>
-                  <input
-                    type="text"
-                    value={content.header.brandName}
-                    onChange={(e) => updateBranding('header', 'brandName', e.target.value)}
-                    className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3.5 py-2 text-xs text-[#18181b] rounded shadow-sm"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-mono uppercase text-[#524d45] font-semibold block">Header Subtitle</label>
-                  <input
-                    type="text"
-                    value={content.header.brandTitle}
-                    onChange={(e) => updateBranding('header', 'brandTitle', e.target.value)}
-                    className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3.5 py-2 text-xs text-[#18181b] rounded shadow-sm"
-                  />
-                </div>
+        {/* TAB 8: FOOTER & BRANDING */}
+        {activeTab === 'footer' && (
+          <div className="space-y-6 max-w-4xl">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="text-xs uppercase tracking-wider font-semibold text-[#18181b]">
+                  Brand Name (Header & Nav)
+                </label>
+                <input
+                  type="text"
+                  value={content.header.brandName}
+                  onChange={(e) =>
+                    setContent((prev) => ({
+                      ...prev,
+                      header: { ...prev.header, brandName: e.target.value },
+                    }))
+                  }
+                  className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3 py-2 text-xs text-[#18181b] rounded font-medium"
+                />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-[#ded7cc]">
-                <div className="space-y-1">
-                  <label className="text-xs font-mono uppercase text-[#524d45] font-semibold block">Footer Studio Tagline</label>
-                  <input
-                    type="text"
-                    value={content.footer.tagline}
-                    onChange={(e) => updateBranding('footer', 'tagline', e.target.value)}
-                    className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3.5 py-2 text-xs text-[#18181b] rounded shadow-sm"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-mono uppercase text-[#524d45] font-semibold block">Copyright Text</label>
-                  <input
-                    type="text"
-                    value={content.footer.copyright}
-                    onChange={(e) => updateBranding('footer', 'copyright', e.target.value)}
-                    className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3.5 py-2 text-xs text-[#18181b] rounded shadow-sm"
-                  />
-                </div>
+              <div className="space-y-1.5">
+                <label className="text-xs uppercase tracking-wider font-semibold text-[#18181b]">
+                  Brand Subtitle / Title
+                </label>
+                <input
+                  type="text"
+                  value={content.header.brandTitle}
+                  onChange={(e) =>
+                    setContent((prev) => ({
+                      ...prev,
+                      header: { ...prev.header, brandTitle: e.target.value },
+                    }))
+                  }
+                  className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3 py-2 text-xs text-[#18181b] rounded"
+                />
               </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="text-xs uppercase tracking-wider font-semibold text-[#18181b]">
+                  Footer Brand Title
+                </label>
+                <input
+                  type="text"
+                  value={content.footer.brandTitle}
+                  onChange={(e) =>
+                    setContent((prev) => ({
+                      ...prev,
+                      footer: { ...prev.footer, brandTitle: e.target.value },
+                    }))
+                  }
+                  className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3 py-2 text-xs text-[#18181b] rounded font-medium"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs uppercase tracking-wider font-semibold text-[#18181b]">
+                  Footer Tagline
+                </label>
+                <input
+                  type="text"
+                  value={content.footer.tagline}
+                  onChange={(e) =>
+                    setContent((prev) => ({
+                      ...prev,
+                      footer: { ...prev.footer, tagline: e.target.value },
+                    }))
+                  }
+                  className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3 py-2 text-xs text-[#18181b] rounded"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs uppercase tracking-wider font-semibold text-[#18181b]">
+                Copyright Line
+              </label>
+              <input
+                type="text"
+                value={content.footer.copyright}
+                onChange={(e) =>
+                  setContent((prev) => ({
+                    ...prev,
+                    footer: { ...prev.footer, copyright: e.target.value },
+                  }))
+                }
+                className="w-full bg-[#faf8f5] border border-[#ded7cc] px-3 py-2 text-xs text-[#18181b] rounded font-mono"
+              />
             </div>
           </div>
         )}
       </div>
+
+      {/* Floating Toast Notification */}
+      {toastMessage && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-[#18181b] text-white text-xs font-semibold px-4 py-2 rounded-full shadow-2xl flex items-center gap-2 border border-neutral-700 animate-fade-in">
+          <Check className="h-4 w-4 text-emerald-400" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
+
+      {/* Media Library Picker Modal */}
+      {mediaPickerOpen && (
+        <MediaLibraryModal
+          isOpen={mediaPickerOpen}
+          selectMode
+          onClose={() => setMediaPickerOpen(false)}
+          onSelectMedia={handleMediaSelected}
+        />
+      )}
     </div>
   );
 };

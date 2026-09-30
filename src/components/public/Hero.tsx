@@ -15,8 +15,15 @@ export const Hero: React.FC<HeroProps> = ({
   isEditMode,
   onEditSection,
 }) => {
-  const [isMuted, setIsMuted] = useState(true);
+  const [isMuted, setIsMuted] = useState(content.soundEnabled !== true);
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  const isVideo =
+    content.videoUrl &&
+    (content.videoUrl.endsWith('.mp4') ||
+      content.videoUrl.endsWith('.webm') ||
+      content.videoUrl.includes('video') ||
+      content.videoUrl.includes('mixkit'));
 
   const toggleSound = () => {
     if (videoRef.current) {
@@ -38,34 +45,45 @@ export const Hero: React.FC<HeroProps> = ({
         </button>
       )}
 
-      {/* Full-screen cinematic video / render */}
-      <div className="absolute inset-0 z-0">
-        <video
-          ref={videoRef}
-          autoPlay
-          muted={isMuted}
-          loop
-          playsInline
-          poster={content.posterUrl || "/src/assets/images/hero_arch_viz_1790605520563.jpg"}
-          className="h-full w-full object-cover object-center"
-        >
-          <source
-            src={content.videoUrl || "https://assets.mixkit.co/videos/preview/mixkit-modern-architectural-building-facade-42777-large.mp4"}
-            type="video/mp4"
+      {/* Full-screen cinematic video or render */}
+      <div className="absolute inset-0 z-0 bg-[#ede8e1]">
+        {isVideo ? (
+          <video
+            ref={videoRef}
+            autoPlay
+            muted={isMuted}
+            loop
+            playsInline
+            key={content.videoUrl}
+            poster={content.posterUrl || "/src/assets/images/hero_arch_viz_1790605520563.jpg"}
+            className="h-full w-full object-cover object-center"
+          >
+            <source
+              src={content.videoUrl || "https://assets.mixkit.co/videos/preview/mixkit-modern-architectural-building-facade-42777-large.mp4"}
+              type="video/mp4"
+            />
+          </video>
+        ) : (
+          <img
+            src={content.videoUrl || content.posterUrl || "/src/assets/images/hero_arch_viz_1790605520563.jpg"}
+            alt={content.heading}
+            className="h-full w-full object-cover object-center"
           />
-        </video>
+        )}
         {/* Soft, low-contrast warm scrim at base */}
         <div className="absolute inset-0 bg-gradient-to-t from-[#f9f8f5] via-black/25 to-black/10 pointer-events-none" />
       </div>
 
-      {/* Floating video sound toggle */}
-      <button
-        onClick={toggleSound}
-        className="absolute top-24 right-6 lg:right-12 z-20 p-2.5 rounded-full bg-white/70 text-[#1a1a1d] hover:bg-white backdrop-blur-md transition-colors shadow-sm"
-        aria-label="Toggle reel sound"
-      >
-        {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-      </button>
+      {/* Floating video sound toggle (if video) */}
+      {isVideo && (
+        <button
+          onClick={toggleSound}
+          className="absolute top-24 right-6 lg:right-12 z-20 p-2.5 rounded-full bg-white/70 text-[#1a1a1d] hover:bg-white backdrop-blur-md transition-colors shadow-sm"
+          aria-label="Toggle reel sound"
+        >
+          {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4 text-emerald-600" />}
+        </button>
+      )}
 
       {/* Hero Content — Restrained Editorial Typography */}
       <div className="relative z-10 mx-auto w-full max-w-7xl px-6 pb-16 pt-32 lg:px-12">
@@ -99,4 +117,3 @@ export const Hero: React.FC<HeroProps> = ({
     </section>
   );
 };
-

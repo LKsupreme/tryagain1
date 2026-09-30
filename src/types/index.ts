@@ -5,7 +5,8 @@ export type ProjectCategory =
   | 'Hospitality & Pavilions'
   | '3D & CGI'
   | 'AI Creative'
-  | 'Animation & Film';
+  | 'Animation & Film'
+  | 'Technical Visualization';
 
 export interface MediaItem {
   id: string;
@@ -13,7 +14,15 @@ export interface MediaItem {
   url: string;
   posterUrl?: string;
   caption?: string;
+  altText?: string;
   aspect?: '16:9' | '4:3' | '3:4' | '21:9' | 'full';
+  isPlaceholder?: boolean;
+  autoplay?: boolean;
+  loop?: boolean;
+  muted?: boolean;
+  controls?: boolean;
+  showOnHomepage?: boolean;
+  showInGallery?: boolean;
 }
 
 // Backward compatibility alias
@@ -28,14 +37,19 @@ export interface Project {
   year: string;
   location: string;
   client?: string;
-  description?: string; // Short 1-2 sentence note maximum
+  role?: string;
+  description?: string; // Short summary
+  fullDescription?: string; // Detailed architectural and 3D narrative
   architecturalNarrative?: string;
   
   // Media-First Architecture
   coverType: 'image' | 'video';
   coverUrl: string;
   coverPosterUrl?: string;
-  // Mixed sequential media stream: images and videos in exact user-specified storytelling sequence
+  coverIsPlaceholder?: boolean;
+  coverAltText?: string;
+
+  // Mixed sequential media stream: images and videos in exact user-specified sequence
   media: MediaItem[];
 
   // Compatibility fields
@@ -45,7 +59,10 @@ export interface Project {
 
   isPublished: boolean;
   isFeatured: boolean;
+  homepageVisibility?: boolean;
   orderIndex: number;
+  seoTitle?: string;
+  seoDescription?: string;
   softwareStack?: string[];
   awardsRecognition?: string;
   createdAt: string;
@@ -67,7 +84,10 @@ export interface MediaLibraryItem {
   url: string;
   posterUrl?: string;
   category?: string;
+  projectName?: string;
   addedAt: string;
+  isPlaceholder?: boolean;
+  fileSize?: string;
 }
 
 // Site-Wide Content Interfaces for Universal In-Place & CMS Text/Media Editing
@@ -78,6 +98,24 @@ export interface HeroContent {
   viewWorkText: string;
   videoUrl: string;
   posterUrl: string;
+  visibility?: boolean;
+  ctaLink?: string;
+  soundEnabled?: boolean;
+  autoplay?: boolean;
+  isPlaceholder?: boolean;
+}
+
+export interface ShowreelContent {
+  heading: string;
+  badge: string;
+  description: string;
+  videoUrl: string;
+  posterUrl: string;
+  isPlaceholder?: boolean;
+  visibility: boolean;
+  autoplay?: boolean;
+  loop?: boolean;
+  muted?: boolean;
 }
 
 export interface AboutExperienceItem {
@@ -103,6 +141,7 @@ export interface AboutContent {
   stat3Label: string;
   experiences: AboutExperienceItem[];
   software: string[];
+  visibility?: boolean;
 }
 
 export interface ServiceItemContent {
@@ -114,12 +153,14 @@ export interface ServiceItemContent {
   mediaUrl: string;
   posterUrl?: string;
   type: 'image' | 'video';
+  isPlaceholder?: boolean;
 }
 
 export interface ServicesContent {
   heading: string;
   badge: string;
   items: ServiceItemContent[];
+  visibility?: boolean;
 }
 
 export interface AICreativeStudy {
@@ -131,12 +172,14 @@ export interface AICreativeStudy {
   posterUrl?: string;
   type: 'image' | 'video';
   aspect?: string;
+  isPlaceholder?: boolean;
 }
 
 export interface AICreativeContent {
   heading: string;
   badge: string;
   studies: AICreativeStudy[];
+  visibility?: boolean;
 }
 
 export interface ClientRegionItem {
@@ -144,12 +187,14 @@ export interface ClientRegionItem {
   region: string;
   desc: string;
   img: string;
+  isPlaceholder?: boolean;
 }
 
 export interface ClientsContent {
   heading: string;
   badge: string;
   regions: ClientRegionItem[];
+  visibility?: boolean;
 }
 
 export interface ContactContent {
@@ -164,6 +209,7 @@ export interface ContactContent {
   instagram: string;
   instagramUrl: string;
   instagramLabel: string;
+  visibility?: boolean;
 }
 
 export interface HeaderContent {
@@ -176,10 +222,14 @@ export interface FooterContent {
   brandTitle: string;
   tagline: string;
   copyright: string;
+  socialInstagramUrl?: string;
+  socialLinkedInUrl?: string;
+  socialBehanceUrl?: string;
 }
 
 export interface SiteContent {
   hero: HeroContent;
+  showreel?: ShowreelContent;
   about: AboutContent;
   services: ServicesContent;
   aiCreative: AICreativeContent;
